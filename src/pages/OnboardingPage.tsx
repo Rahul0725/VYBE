@@ -17,6 +17,7 @@ import {
   Smartphone, Link as LinkIcon
 } from 'lucide-react';
 import { TEMPLATES } from '../constants/templates';
+import { SchemaCheck } from '../components/SchemaCheck';
 
 const usernameSchema = z.object({
   username: z.string().min(3, 'Username must be at least 3 characters').regex(/^[a-zA-Z0-9_]+$/, 'Only letters, numbers, and underscores allowed'),
@@ -241,6 +242,7 @@ export default function OnboardingPage() {
 
   return (
     <div className="min-h-screen bg-vybe-dark flex items-center justify-center p-4 relative overflow-hidden">
+      <SchemaCheck />
       <div className="absolute inset-0 bg-animated-gradient opacity-10" />
       
       <div className="w-full max-w-lg glass-panel rounded-[2rem] overflow-hidden relative z-10 min-h-[600px] flex flex-col">

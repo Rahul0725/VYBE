@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { Loader2, ExternalLink, Globe, EyeOff, LogOut } from 'lucide-react';
 import DashboardEditor from '../components/DashboardEditor';
 import DashboardPreview from '../components/DashboardPreview';
+import { SchemaCheck } from '../components/SchemaCheck';
 import { Link as LinkType } from '../types/link';
 
 export default function DashboardPage() {
@@ -34,7 +35,14 @@ export default function DashboardPage() {
         .eq('id', user!.id)
         .single();
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        if (profileError.code === 'PGRST116') {
+          // Profile doesn't exist, redirect to onboarding
+          navigate('/onboarding');
+          return;
+        }
+        throw profileError;
+      }
       setProfile(profileData);
 
       // Fetch links
@@ -179,8 +187,20 @@ export default function DashboardPage() {
     );
   }
 
+  if (!profile) {
+    return (
+      <div className="min-h-screen bg-vybe-dark flex flex-col items-center justify-center p-4">
+        <SchemaCheck />
+        <h2 className="text-xl font-bold mb-2">Failed to load profile</h2>
+        <p className="text-white/60 mb-4">There was an error loading your data. Please check your connection.</p>
+        <Button onClick={fetchData} variant="outline">Retry</Button>
+      </div>
+    );
+  }
+
   return (
     <div className="h-screen bg-vybe-dark flex flex-col overflow-hidden">
+      <SchemaCheck />
       {/* Header */}
       <header className="h-16 border-b border-white/10 bg-vybe-darker/50 backdrop-blur-md flex items-center justify-between px-6 shrink-0 z-50">
         <div className="flex items-center gap-2">
