@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -10,7 +10,13 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { toast } from 'sonner';
-import { Loader2, ArrowRight, UserCircle, Palette } from 'lucide-react';
+import { 
+  Loader2, ArrowRight, UserCircle, Palette, Briefcase, Users, 
+  Instagram, Youtube, Twitter, Facebook, Linkedin, Github, Globe, 
+  Music, MessageCircle, Camera, Check, Plus, Trash2, Image as ImageIcon,
+  Smartphone, Link as LinkIcon
+} from 'lucide-react';
+import { TEMPLATES } from '../constants/templates';
 
 const usernameSchema = z.object({
   username: z.string().min(3, 'Username must be at least 3 characters').regex(/^[a-zA-Z0-9_]+$/, 'Only letters, numbers, and underscores allowed'),
@@ -21,49 +27,66 @@ const profileSchema = z.object({
   bio: z.string().max(160, 'Bio must be less than 160 characters').optional(),
 });
 
+const SOCIAL_PLATFORMS = [
+  { id: 'instagram', name: 'Instagram', icon: Instagram, color: '#E1306C' },
+  { id: 'tiktok', name: 'TikTok', icon: Music, color: '#000000' }, // Using Music as placeholder
+  { id: 'youtube', name: 'YouTube', icon: Youtube, color: '#FF0000' },
+  { id: 'twitter', name: 'X (Twitter)', icon: Twitter, color: '#1DA1F2' },
+  { id: 'facebook', name: 'Facebook', icon: Facebook, color: '#1877F2' },
+  { id: 'linkedin', name: 'LinkedIn', icon: Linkedin, color: '#0A66C2' },
+  { id: 'github', name: 'GitHub', icon: Github, color: '#181717' },
+  { id: 'website', name: 'Website', icon: Globe, color: '#25D366' },
+  { id: 'whatsapp', name: 'WhatsApp', icon: MessageCircle, color: '#25D366' },
+  { id: 'snapchat', name: 'Snapchat', icon: Camera, color: '#FFFC00' },
+  { id: 'spotify', name: 'Spotify', icon: Music, color: '#1DB954' },
+  { id: 'pinterest', name: 'Pinterest', icon: Camera, color: '#BD081C' },
+];
+
 export default function OnboardingPage() {
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const { user, isDemo } = useAuth();
   const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { register: registerUsername, handleSubmit: handleUsernameSubmit, formState: { errors: usernameErrors } } = useForm({
     resolver: zodResolver(usernameSchema),
+    defaultValues: { username: '' }
   });
 
-  const { register: registerProfile, handleSubmit: handleProfileSubmit, formState: { errors: profileErrors } } = useForm({
+  const { register: registerProfile, handleSubmit: handleProfileSubmit, formState: { errors: profileErrors }, setValue: setProfileValue, watch: watchProfile } = useForm({
     resolver: zodResolver(profileSchema),
+    defaultValues: { display_name: '', bio: '' }
   });
 
   const [onboardingData, setOnboardingData] = useState({
     username: '',
+    category: '',
+    templateId: 'minimal',
+    selected_platforms: [] as string[],
+    links: [] as { platform: string, url: string }[],
     display_name: '',
     bio: '',
-    theme_color: '#f2ff00',
-    theme_background: '#050505',
+    avatar_url: '',
   });
 
-  const onUsernameNext = async (data: any) => {
+  const handleUsernameNext = async (data: any) => {
     setIsLoading(true);
     try {
-      if (!isDemo) {
-        // Check if username exists
+      if (!isDemo && user) {
         const { data: existingUser, error } = await supabase
           .from('users')
           .select('username')
           .eq('username', data.username)
           .single();
         
-        if (error && error.code !== 'PGRST116') { // PGRST116 is "The result contains 0 rows"
-           throw error;
-        }
-
+        if (error && error.code !== 'PGRST116') throw error;
         if (existingUser) {
           toast.error('Username is already taken');
           return;
         }
       }
-      
       setOnboardingData(prev => ({ ...prev, username: data.username }));
       setStep(2);
     } catch (error: any) {
@@ -74,9 +97,89 @@ export default function OnboardingPage() {
     }
   };
 
-  const onProfileNext = (data: any) => {
-    setOnboardingData(prev => ({ ...prev, ...data }));
+  const handleCategorySelect = (category: string) => {
+    setOnboardingData(prev => ({ ...prev, category }));
     setStep(3);
+  };
+
+  const handleThemeSelect = (templateId: string) => {
+    setOnboardingData(prev => ({ ...prev, templateId }));
+    setStep(4);
+  };
+
+  const togglePlatform = (platformId: string) => {
+    setOnboardingData(prev => {
+      const selected = prev.selected_platforms.includes(platformId)
+        ? prev.selected_platforms.filter(id => id !== platformId)
+        : [...prev.selected_platforms, platformId].slice(0, 5); // Limit to 5
+      return { ...prev, selected_platforms: selected };
+    });
+  };
+
+  const handleLinksNext = () => {
+    // Filter out empty URLs
+    const validLinks = onboardingData.links.filter(l => l.url.trim() !== '');
+    setOnboardingData(prev => ({ ...prev, links: validLinks }));
+    setStep(6);
+  };
+
+  const updateLinkUrl = (platformId: string, url: string) => {
+    setOnboardingData(prev => {
+      const existingLinkIndex = prev.links.findIndex(l => l.platform === platformId);
+      const newLinks = [...prev.links];
+      if (existingLinkIndex >= 0) {
+        newLinks[existingLinkIndex] = { platform: platformId, url };
+      } else {
+        newLinks.push({ platform: platformId, url });
+      }
+      return { ...prev, links: newLinks };
+    });
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('File size must be less than 5MB');
+        return;
+      }
+
+      setUploading(true);
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user?.id}-${Math.random()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        // Try to create bucket if it doesn't exist
+        if (uploadError.message.includes('Bucket not found') || (uploadError as any).statusCode === '404') {
+          await supabase.storage.createBucket('avatars', { public: true });
+          const { error: retryError } = await supabase.storage.from('avatars').upload(filePath, file);
+          if (retryError) throw retryError;
+        } else {
+          throw uploadError;
+        }
+      }
+
+      const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
+      setOnboardingData(prev => ({ ...prev, avatar_url: data.publicUrl }));
+      toast.success('Image uploaded!');
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast.error('Error uploading image');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleProfileNext = (data: any) => {
+    setOnboardingData(prev => ({ ...prev, ...data }));
+    setStep(7);
   };
 
   const onFinish = async () => {
@@ -85,19 +188,39 @@ export default function OnboardingPage() {
       if (!user) throw new Error('No user found');
       
       if (!isDemo) {
-        const { error } = await supabase
+        // 1. Create User Profile
+        const { error: userError } = await supabase
           .from('users')
           .upsert({
             id: user.id,
             username: onboardingData.username,
             display_name: onboardingData.display_name,
             bio: onboardingData.bio,
-            theme_color: onboardingData.theme_color,
-            theme_background: onboardingData.theme_background,
+            avatar_url: onboardingData.avatar_url,
+            theme_config: { templateId: onboardingData.templateId },
             created_at: new Date().toISOString()
           });
 
-        if (error) throw error;
+        if (userError) throw userError;
+
+        // 2. Create Links
+        if (onboardingData.links.length > 0) {
+          const linksToInsert = onboardingData.links.map((link, index) => ({
+            user_id: user.id,
+            title: SOCIAL_PLATFORMS.find(p => p.id === link.platform)?.name || link.platform,
+            url: link.url,
+            icon: link.platform,
+            position: index,
+            is_active: true,
+            created_at: new Date().toISOString()
+          }));
+
+          const { error: linksError } = await supabase
+            .from('links')
+            .insert(linksToInsert);
+
+          if (linksError) throw linksError;
+        }
       }
       
       toast.success('Profile created successfully!');
@@ -111,50 +234,32 @@ export default function OnboardingPage() {
   };
 
   const slideVariants = {
-    enter: (direction: number) => ({
-      x: direction > 0 ? 1000 : -1000,
-      opacity: 0
-    }),
-    center: {
-      zIndex: 1,
-      x: 0,
-      opacity: 1
-    },
-    exit: (direction: number) => ({
-      zIndex: 0,
-      x: direction < 0 ? 1000 : -1000,
-      opacity: 0
-    })
+    enter: (direction: number) => ({ x: direction > 0 ? 1000 : -1000, opacity: 0 }),
+    center: { zIndex: 1, x: 0, opacity: 1 },
+    exit: (direction: number) => ({ zIndex: 0, x: direction < 0 ? 1000 : -1000, opacity: 0 })
   };
 
   return (
     <div className="min-h-screen bg-vybe-dark flex items-center justify-center p-4 relative overflow-hidden">
       <div className="absolute inset-0 bg-animated-gradient opacity-10" />
       
-      <div className="w-full max-w-lg glass-panel rounded-[2rem] overflow-hidden relative z-10 min-h-[500px] flex flex-col">
+      <div className="w-full max-w-lg glass-panel rounded-[2rem] overflow-hidden relative z-10 min-h-[600px] flex flex-col">
         {/* Progress Bar */}
         <div className="h-1 w-full bg-white/10">
           <motion.div 
             className="h-full bg-vybe-accent"
-            initial={{ width: '33%' }}
-            animate={{ width: `${(step / 3) * 100}%` }}
+            initial={{ width: '14%' }}
+            animate={{ width: `${(step / 7) * 100}%` }}
             transition={{ duration: 0.5 }}
           />
         </div>
 
-        <div className="flex-1 p-8 relative">
+        <div className="flex-1 p-8 relative flex flex-col">
           <AnimatePresence custom={1} mode="wait">
+            
+            {/* STEP 1: Username */}
             {step === 1 && (
-              <motion.div
-                key="step1"
-                custom={1}
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className="h-full flex flex-col"
-              >
+              <motion.div key="step1" variants={slideVariants} initial="enter" animate="center" exit="exit" className="flex-1 flex flex-col">
                 <div className="mb-8">
                   <div className="w-12 h-12 rounded-full bg-vybe-accent/20 flex items-center justify-center mb-4">
                     <UserCircle className="w-6 h-6 text-vybe-accent" />
@@ -162,8 +267,7 @@ export default function OnboardingPage() {
                   <h2 className="text-3xl font-bold mb-2">Claim your link</h2>
                   <p className="text-white/60">Choose a unique username for your VYBE page.</p>
                 </div>
-
-                <form onSubmit={handleUsernameSubmit(onUsernameNext)} className="flex-1 flex flex-col">
+                <form onSubmit={handleUsernameSubmit(handleUsernameNext)} className="flex-1 flex flex-col">
                   <div className="space-y-2 flex-1">
                     <Label htmlFor="username">Username</Label>
                     <div className="relative">
@@ -177,7 +281,6 @@ export default function OnboardingPage() {
                     </div>
                     {usernameErrors.username && <p className="text-red-500 text-xs">{usernameErrors.username.message as string}</p>}
                   </div>
-
                   <Button type="submit" variant="neon" className="w-full mt-auto" disabled={isLoading}>
                     {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Continue'} <ArrowRight className="ml-2 w-4 h-4" />
                   </Button>
@@ -185,23 +288,176 @@ export default function OnboardingPage() {
               </motion.div>
             )}
 
+            {/* STEP 2: Category */}
             {step === 2 && (
-              <motion.div
-                key="step2"
-                custom={1}
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className="h-full flex flex-col"
-              >
+              <motion.div key="step2" variants={slideVariants} initial="enter" animate="center" exit="exit" className="flex-1 flex flex-col">
                 <div className="mb-8">
-                  <h2 className="text-3xl font-bold mb-2">Tell us about yourself</h2>
-                  <p className="text-white/60">This will be displayed on your public page.</p>
+                  <h2 className="text-3xl font-bold mb-2">What's your goal?</h2>
+                  <p className="text-white/60">This helps us personalize your experience.</p>
                 </div>
+                <div className="space-y-4 flex-1">
+                  {[
+                    { id: 'creator', label: 'Creator', desc: 'Build my following and monetize.', icon: UserCircle, color: 'text-pink-500', bg: 'bg-pink-500/10' },
+                    { id: 'business', label: 'Business', desc: 'Grow my business and reach customers.', icon: Briefcase, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+                    { id: 'personal', label: 'Personal', desc: 'Share links with friends.', icon: Users, color: 'text-green-500', bg: 'bg-green-500/10' },
+                  ].map((cat) => (
+                    <button
+                      key={cat.id}
+                      onClick={() => handleCategorySelect(cat.id)}
+                      className="w-full p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/30 transition-all text-left flex items-center gap-4 group"
+                    >
+                      <div className={`p-3 rounded-lg ${cat.bg} ${cat.color}`}>
+                        <cat.icon className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-lg">{cat.label}</h3>
+                        <p className="text-sm text-white/60">{cat.desc}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                <Button variant="ghost" onClick={() => setStep(1)} className="mt-4">Back</Button>
+              </motion.div>
+            )}
 
-                <form onSubmit={handleProfileSubmit(onProfileNext)} className="flex-1 flex flex-col space-y-4">
+            {/* STEP 3: Theme */}
+            {step === 3 && (
+              <motion.div key="step3" variants={slideVariants} initial="enter" animate="center" exit="exit" className="flex-1 flex flex-col">
+                <div className="mb-6">
+                  <h2 className="text-3xl font-bold mb-2">Select a theme</h2>
+                  <p className="text-white/60">Pick a style. You can change this later.</p>
+                </div>
+                <div className="grid grid-cols-2 gap-4 flex-1 overflow-y-auto pr-2 max-h-[400px]">
+                  {Object.values(TEMPLATES).map((template) => (
+                    <button
+                      key={template.id}
+                      onClick={() => handleThemeSelect(template.id)}
+                      className="group relative aspect-[3/4] rounded-xl border border-white/10 overflow-hidden hover:border-vybe-accent transition-all"
+                      style={{ background: template.background }}
+                    >
+                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-4">
+                        <div className="w-12 h-12 rounded-full" style={{ backgroundColor: template.accentColor }} />
+                        <div className="w-20 h-2 rounded-full bg-black/20" />
+                        <div className="w-16 h-2 rounded-full bg-black/10" />
+                        <div className="w-16 h-2 rounded-full bg-black/10" />
+                      </div>
+                      <div className="absolute bottom-0 left-0 right-0 p-2 bg-black/50 backdrop-blur-sm text-center">
+                        <span className="text-xs font-bold text-white">{template.name}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                <Button variant="ghost" onClick={() => setStep(2)} className="mt-4">Back</Button>
+              </motion.div>
+            )}
+
+            {/* STEP 4: Social Platforms */}
+            {step === 4 && (
+              <motion.div key="step4" variants={slideVariants} initial="enter" animate="center" exit="exit" className="flex-1 flex flex-col">
+                <div className="mb-6">
+                  <h2 className="text-3xl font-bold mb-2">Which platforms?</h2>
+                  <p className="text-white/60">Pick up to 5 to get started.</p>
+                </div>
+                <div className="grid grid-cols-3 gap-3 flex-1 overflow-y-auto pr-2 max-h-[400px]">
+                  {SOCIAL_PLATFORMS.map((platform) => {
+                    const isSelected = onboardingData.selected_platforms.includes(platform.id);
+                    return (
+                      <button
+                        key={platform.id}
+                        onClick={() => togglePlatform(platform.id)}
+                        className={`aspect-square rounded-xl border flex flex-col items-center justify-center gap-2 transition-all ${isSelected ? 'border-vybe-accent bg-vybe-accent/10' : 'border-white/10 bg-white/5 hover:bg-white/10'}`}
+                      >
+                        <platform.icon className="w-8 h-8" style={{ color: isSelected ? '#f2ff00' : platform.color }} />
+                        <span className="text-xs font-medium">{platform.name}</span>
+                        {isSelected && <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-vybe-accent" />}
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="flex gap-4 mt-6">
+                  <Button variant="outline" onClick={() => setStep(3)} className="flex-1">Back</Button>
+                  <Button variant="neon" onClick={() => setStep(5)} className="flex-1">Continue</Button>
+                </div>
+              </motion.div>
+            )}
+
+            {/* STEP 5: Add Links */}
+            {step === 5 && (
+              <motion.div key="step5" variants={slideVariants} initial="enter" animate="center" exit="exit" className="flex-1 flex flex-col">
+                <div className="mb-6">
+                  <h2 className="text-3xl font-bold mb-2">Add your links</h2>
+                  <p className="text-white/60">Complete the fields below.</p>
+                </div>
+                <div className="space-y-4 flex-1 overflow-y-auto pr-2 max-h-[400px]">
+                  {onboardingData.selected_platforms.length === 0 ? (
+                    <div className="text-center py-10 text-white/40">
+                      <p>No platforms selected.</p>
+                      <Button variant="link" onClick={() => setStep(4)} className="text-vybe-accent">Go back to select platforms</Button>
+                    </div>
+                  ) : (
+                    onboardingData.selected_platforms.map((platformId) => {
+                      const platform = SOCIAL_PLATFORMS.find(p => p.id === platformId);
+                      const currentLink = onboardingData.links.find(l => l.platform === platformId)?.url || '';
+                      return (
+                        <div key={platformId} className="space-y-2">
+                          <Label className="flex items-center gap-2">
+                            {platform?.icon && <platform.icon className="w-4 h-4" />}
+                            {platform?.name} URL
+                          </Label>
+                          <Input 
+                            placeholder={`https://${platformId}.com/...`}
+                            value={currentLink}
+                            onChange={(e) => updateLinkUrl(platformId, e.target.value)}
+                          />
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+                <div className="flex gap-4 mt-6">
+                  <Button variant="outline" onClick={() => setStep(4)} className="flex-1">Back</Button>
+                  <Button variant="neon" onClick={handleLinksNext} className="flex-1">Continue</Button>
+                </div>
+              </motion.div>
+            )}
+
+            {/* STEP 6: Profile Details */}
+            {step === 6 && (
+              <motion.div key="step6" variants={slideVariants} initial="enter" animate="center" exit="exit" className="flex-1 flex flex-col">
+                <div className="mb-6">
+                  <h2 className="text-3xl font-bold mb-2">Profile details</h2>
+                  <p className="text-white/60">Add your photo and bio.</p>
+                </div>
+                
+                <form onSubmit={handleProfileSubmit(handleProfileNext)} className="flex-1 flex flex-col space-y-6">
+                  {/* Avatar Upload */}
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="relative group">
+                      <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-white/10 bg-white/5 flex items-center justify-center">
+                        {onboardingData.avatar_url ? (
+                          <img src={onboardingData.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                        ) : (
+                          <UserCircle className="w-12 h-12 text-white/20" />
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="absolute bottom-0 right-0 p-2 rounded-full bg-vybe-accent text-black hover:bg-vybe-accent/90 transition-colors"
+                      >
+                        {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                      </button>
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleFileUpload}
+                      />
+                    </div>
+                    <span className="text-sm text-white/40">Tap + to upload</span>
+                  </div>
+
                   <div className="space-y-2">
                     <Label htmlFor="display_name">Display Name</Label>
                     <Input 
@@ -217,69 +473,71 @@ export default function OnboardingPage() {
                     <Label htmlFor="bio">Bio</Label>
                     <textarea 
                       id="bio" 
-                      placeholder="A short bio about you..." 
-                      className={`w-full h-32 rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-white resize-none focus:outline-none focus:ring-2 focus:ring-vybe-accent ${profileErrors.bio ? 'border-red-500' : ''}`}
+                      placeholder="Tell the world about yourself..." 
+                      className={`w-full h-24 rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-white resize-none focus:outline-none focus:ring-2 focus:ring-vybe-accent ${profileErrors.bio ? 'border-red-500' : ''}`}
                       {...registerProfile('bio')}
                     />
                     {profileErrors.bio && <p className="text-red-500 text-xs">{profileErrors.bio.message as string}</p>}
                   </div>
 
                   <div className="flex gap-4 mt-auto">
-                    <Button type="button" variant="outline" onClick={() => setStep(1)} className="flex-1">Back</Button>
-                    <Button type="submit" variant="neon" className="flex-1">Continue <ArrowRight className="ml-2 w-4 h-4" /></Button>
+                    <Button type="button" variant="outline" onClick={() => setStep(5)} className="flex-1">Back</Button>
+                    <Button type="submit" variant="neon" className="flex-1">Continue</Button>
                   </div>
                 </form>
               </motion.div>
             )}
 
-            {step === 3 && (
-              <motion.div
-                key="step3"
-                custom={1}
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className="h-full flex flex-col"
-              >
-                <div className="mb-8">
-                  <div className="w-12 h-12 rounded-full bg-vybe-accent-2/20 flex items-center justify-center mb-4">
-                    <Palette className="w-6 h-6 text-vybe-accent-2" />
+            {/* STEP 7: Final Preview */}
+            {step === 7 && (
+              <motion.div key="step7" variants={slideVariants} initial="enter" animate="center" exit="exit" className="flex-1 flex flex-col items-center text-center">
+                <div className="mb-8 mt-4">
+                  <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
+                    <Check className="w-8 h-8 text-green-500" />
                   </div>
-                  <h2 className="text-3xl font-bold mb-2">Pick your VYBE</h2>
-                  <p className="text-white/60">Choose a starting theme. You can change this later.</p>
+                  <h2 className="text-3xl font-bold mb-2">Looking good!</h2>
+                  <p className="text-white/60">Your VYBE page is ready to go.</p>
                 </div>
 
-                <div className="flex-1 space-y-6">
-                  <div className="grid grid-cols-2 gap-4">
-                    {[
-                      { bg: '#050505', color: '#f2ff00', name: 'Neon Dark' },
-                      { bg: '#1a0b2e', color: '#ff00ff', name: 'Cyber Pink' },
-                      { bg: '#0b1a2e', color: '#00ffff', name: 'Deep Sea' },
-                      { bg: '#ffffff', color: '#000000', name: 'Clean Light' },
-                    ].map((theme, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setOnboardingData(prev => ({ ...prev, theme_background: theme.bg, theme_color: theme.color }))}
-                        className={`p-4 rounded-xl border-2 transition-all ${onboardingData.theme_background === theme.bg ? 'border-vybe-accent scale-105' : 'border-white/10 hover:border-white/30'}`}
-                        style={{ backgroundColor: theme.bg }}
-                      >
-                        <div className="w-full h-8 rounded-full mb-2" style={{ backgroundColor: theme.color }} />
-                        <span className="text-xs font-medium" style={{ color: theme.bg === '#ffffff' ? '#000000' : '#ffffff' }}>{theme.name}</span>
-                      </button>
-                    ))}
+                {/* Preview Card */}
+                <div className="w-full max-w-xs aspect-[9/16] rounded-3xl border-4 border-black shadow-2xl overflow-hidden relative mb-8 transform scale-90">
+                  <div className="absolute inset-0" style={{ background: TEMPLATES[onboardingData.templateId]?.background || '#fff' }}>
+                    <div className="p-6 flex flex-col items-center pt-12">
+                      <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-white/20 mb-4">
+                        {onboardingData.avatar_url ? (
+                          <img src={onboardingData.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full bg-white/10 flex items-center justify-center">
+                            <UserCircle className="w-10 h-10 text-white/50" />
+                          </div>
+                        )}
+                      </div>
+                      <h3 className="font-bold text-lg mb-1" style={{ color: TEMPLATES[onboardingData.templateId]?.textColor }}>
+                        {onboardingData.display_name || onboardingData.username}
+                      </h3>
+                      <p className="text-xs text-center opacity-80 mb-6" style={{ color: TEMPLATES[onboardingData.templateId]?.textColor }}>
+                        {onboardingData.bio}
+                      </p>
+                      
+                      <div className="w-full space-y-3">
+                        {onboardingData.links.slice(0, 3).map((link, i) => (
+                          <div key={i} className="w-full h-10 rounded-lg flex items-center justify-center" style={{ background: TEMPLATES[onboardingData.templateId]?.cardBg, color: TEMPLATES[onboardingData.templateId]?.textColor }}>
+                            <span className="text-xs font-medium">
+                              {SOCIAL_PLATFORMS.find(p => p.id === link.platform)?.name}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex gap-4 mt-8">
-                  <Button type="button" variant="outline" onClick={() => setStep(2)} className="flex-1" disabled={isLoading}>Back</Button>
-                  <Button onClick={onFinish} variant="neon" className="flex-1" disabled={isLoading}>
-                    {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Complete Setup'}
-                  </Button>
-                </div>
+                <Button onClick={onFinish} variant="neon" className="w-full max-w-xs" disabled={isLoading}>
+                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Go to Dashboard'}
+                </Button>
               </motion.div>
             )}
+
           </AnimatePresence>
         </div>
       </div>

@@ -60,23 +60,25 @@ export default function MobilePreview({ user, links }: MobilePreviewProps) {
                 </div>
               )}
             </div>
-            <h1 className="text-xl font-bold mb-1">@{user?.username}</h1>
-            {user?.bio && <p className="text-sm opacity-80">{user.bio}</p>}
+            <h1 className="text-xl font-bold mb-1 tracking-tight">
+              {user?.display_name || `@${user?.username}`}
+            </h1>
+            {user?.bio && <p className="text-sm opacity-80 font-medium">{user.bio}</p>}
           </div>
 
           {/* Links */}
-          <div className="w-full space-y-4">
+          <div className={`w-full ${activeTheme.layout === 'grid' ? 'grid grid-cols-1 gap-3' : 'space-y-3'}`}>
             {links.filter(l => l.is_active).map((link) => (
-              <a
+              <div
                 key={link.id}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block w-full p-4 text-center transition-transform active:scale-95 hover:scale-[1.02]"
+                className="block w-full p-4 text-center transition-transform active:scale-95 hover:scale-[1.02] relative group min-h-[56px] flex items-center justify-center"
                 style={cardStyle}
               >
-                <span className="font-medium">{link.title}</span>
-              </a>
+                <span className="font-medium relative z-10">{link.title}</span>
+                {activeTheme.buttonStyle === 'hard-shadow' && (
+                  <div className="absolute inset-0 border-2 border-current translate-x-1 translate-y-1 -z-10 rounded-none" />
+                )}
+              </div>
             ))}
           </div>
           
