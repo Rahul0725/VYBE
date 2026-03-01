@@ -23,32 +23,33 @@ export const SortableLink: React.FC<SortableLinkProps> = ({ link, onDelete, onUp
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="bg-white/5 border border-white/10 rounded-xl p-4 mb-4 group hover:border-white/20 transition-colors">
-      <div className="flex items-center gap-4">
-        <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-white/40 hover:text-white transition-colors">
+    <div ref={setNodeRef} style={style} className="bg-white/5 border border-white/10 rounded-xl p-3 md:p-4 mb-4 group hover:border-white/20 transition-colors">
+      <div className="flex items-start md:items-center gap-3 md:gap-4">
+        <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-white/40 hover:text-white transition-colors mt-2 md:mt-0">
           <GripVertical className="w-5 h-5" />
         </div>
         
-        <div className="flex-1 space-y-3">
+        <div className="flex-1 space-y-3 min-w-0">
           <div className="flex items-center gap-2">
             <Input 
               value={link.title} 
               onChange={(e) => onUpdate(link.id, { title: e.target.value })}
               placeholder="Link Title" 
-              className="bg-transparent border-none p-0 h-auto text-lg font-medium placeholder:text-white/20 focus-visible:ring-0"
+              className="bg-transparent border-none p-0 h-auto text-base md:text-lg font-medium placeholder:text-white/20 focus-visible:ring-0 min-w-0"
             />
             <Switch 
               checked={link.is_active} 
               onCheckedChange={(checked) => onUpdate(link.id, { is_active: checked })}
+              className="ml-auto shrink-0"
             />
           </div>
           <div className="flex items-center gap-2">
-            <LinkIcon className="w-4 h-4 text-white/40" />
+            <LinkIcon className="w-4 h-4 text-white/40 shrink-0" />
             <Input 
               value={link.url} 
               onChange={(e) => onUpdate(link.id, { url: e.target.value })}
               placeholder="https://example.com" 
-              className="bg-transparent border-none p-0 h-auto text-sm text-white/60 placeholder:text-white/20 focus-visible:ring-0"
+              className="bg-transparent border-none p-0 h-auto text-sm text-white/60 placeholder:text-white/20 focus-visible:ring-0 min-w-0"
             />
           </div>
         </div>
@@ -56,7 +57,7 @@ export const SortableLink: React.FC<SortableLinkProps> = ({ link, onDelete, onUp
         <Button 
           variant="ghost" 
           size="icon" 
-          className="text-white/40 hover:text-red-500 hover:bg-red-500/10 transition-colors opacity-0 group-hover:opacity-100"
+          className="text-white/40 hover:text-red-500 hover:bg-red-500/10 transition-colors opacity-100 md:opacity-0 md:group-hover:opacity-100 shrink-0"
           onClick={() => onDelete(link.id)}
         >
           <Trash2 className="w-4 h-4" />
@@ -65,7 +66,7 @@ export const SortableLink: React.FC<SortableLinkProps> = ({ link, onDelete, onUp
       
       {/* Expanded Settings (Optional) */}
       <div className="mt-4 pt-4 border-t border-white/5 hidden group-focus-within:block animate-in fade-in slide-in-from-top-2">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label className="text-xs text-white/40">Icon (Optional)</Label>
             <div className="flex items-center gap-2">
@@ -78,7 +79,7 @@ export const SortableLink: React.FC<SortableLinkProps> = ({ link, onDelete, onUp
               />
             </div>
           </div>
-          <div className="flex items-center justify-between pt-6">
+          <div className="flex items-center justify-between pt-2 md:pt-6">
             <Label className="text-xs text-white/40">Show Clicks</Label>
             <Switch 
               checked={link.show_clicks !== false} 

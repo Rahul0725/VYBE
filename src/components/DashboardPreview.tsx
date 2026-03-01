@@ -15,7 +15,7 @@ interface DashboardPreviewProps {
   links: Link[];
 }
 
-export default function DashboardPreview({ user, links }: DashboardPreviewProps) {
+export default function DashboardPreview({ user, links, className = "" }: DashboardPreviewProps & { className?: string }) {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -58,13 +58,13 @@ export default function DashboardPreview({ user, links }: DashboardPreviewProps)
   };
 
   return (
-    <div className="hidden lg:flex flex-col items-center justify-center h-full sticky top-0 p-8 border-l border-white/10 bg-vybe-darker/50 backdrop-blur-3xl">
-      <div className="mb-8 flex items-center gap-4">
+    <div className={`flex flex-col items-center justify-center h-full p-8 border-l border-white/10 bg-vybe-darker/50 backdrop-blur-3xl overflow-y-auto ${className}`}>
+      <div className="mb-8 flex items-center gap-4 shrink-0">
         <h2 className="text-xl font-bold text-white/80">Live Preview</h2>
         <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_#22c55e]" />
       </div>
 
-      <div className="relative group">
+      <div className="relative group shrink-0">
         <MobilePreview user={user} links={links} />
         
         {/* Overlay Actions */}

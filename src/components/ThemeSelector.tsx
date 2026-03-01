@@ -10,7 +10,7 @@ interface ThemeSelectorProps {
 
 export default function ThemeSelector({ currentTemplateId, onSelect }: ThemeSelectorProps) {
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
       {Object.values(TEMPLATES).map((template) => (
         <button
           key={template.id}
@@ -21,7 +21,11 @@ export default function ThemeSelector({ currentTemplateId, onSelect }: ThemeSele
               ? "border-vybe-accent ring-2 ring-vybe-accent/20" 
               : "border-transparent hover:border-white/20"
           )}
-          style={{ background: template.background }}
+          style={{ 
+            background: template.background,
+            backgroundSize: template.bgSize,
+            animation: template.animation
+          }}
         >
           {/* Preview Content */}
           <div className="absolute inset-0 p-4 flex flex-col items-center justify-center gap-2 pointer-events-none">

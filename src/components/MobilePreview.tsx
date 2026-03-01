@@ -26,6 +26,8 @@ export default function MobilePreview({ user, links }: MobilePreviewProps) {
 
   const containerStyle = {
     background: activeTheme.background,
+    backgroundSize: activeTheme.bgSize,
+    animation: activeTheme.animation,
     color: activeTheme.textColor,
     fontFamily: activeTheme.fontStyle === 'mono' ? 'monospace' : activeTheme.fontStyle === 'serif' ? 'serif' : 'sans-serif',
   };

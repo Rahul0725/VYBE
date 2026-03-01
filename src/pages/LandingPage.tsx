@@ -1,9 +1,55 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
-import { ArrowRight, Sparkles, Zap, Smartphone } from 'lucide-react';
+import { ArrowRight, Sparkles, Zap, Smartphone, Loader2, Check, X } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+import { useDebounce } from '../hooks/useDebounce';
 
 export default function LandingPage() {
+  const navigate = useNavigate();
+  const [username, setUsername] = useState('');
+  const [isChecking, setIsChecking] = useState(false);
+  const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
+  const debouncedUsername = useDebounce(username, 500);
+
+  useEffect(() => {
+    const checkUsername = async () => {
+      if (debouncedUsername.length < 3) {
+        setIsAvailable(null);
+        return;
+      }
+
+      setIsChecking(true);
+      try {
+        const { data, error } = await supabase
+          .from('users')
+          .select('username')
+          .eq('username', debouncedUsername)
+          .single();
+        
+        if (error && error.code === 'PGRST116') {
+          setIsAvailable(true);
+        } else if (data) {
+          setIsAvailable(false);
+        }
+      } catch (error) {
+        console.error('Error checking username:', error);
+        setIsAvailable(null);
+      } finally {
+        setIsChecking(false);
+      }
+    };
+
+    checkUsername();
+  }, [debouncedUsername]);
+
+  const handleClaim = () => {
+    if (isAvailable) {
+      navigate(`/signup?username=${username}`);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-vybe-dark overflow-hidden relative">
       {/* Background Elements */}
@@ -68,15 +114,44 @@ export default function LandingPage() {
             <input 
               type="text" 
               placeholder="yourname"
-              className="w-full h-14 pl-24 pr-4 rounded-full bg-white/5 border border-white/10 text-white focus:outline-none focus:border-vybe-accent transition-colors"
+              value={username}
+              onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9._-]/g, ''))}
+              className={`w-full h-14 pl-24 pr-12 rounded-full bg-white/5 border text-white focus:outline-none transition-colors ${
+                isAvailable === true ? 'border-green-500 focus:border-green-500' :
+                isAvailable === false ? 'border-red-500 focus:border-red-500' :
+                'border-white/10 focus:border-vybe-accent'
+              }`}
             />
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+              {isChecking ? (
+                <Loader2 className="w-5 h-5 animate-spin text-white/40" />
+              ) : isAvailable === true ? (
+                <Check className="w-5 h-5 text-green-500" />
+              ) : isAvailable === false ? (
+                <X className="w-5 h-5 text-red-500" />
+              ) : null}
+            </div>
           </div>
-          <Button variant="neon" size="lg" className="shrink-0" asChild>
-            <Link to="/signup">
-              Claim Link <ArrowRight className="ml-2 w-5 h-5" />
-            </Link>
+          <Button 
+            variant="neon" 
+            size="lg" 
+            className="shrink-0" 
+            onClick={handleClaim}
+            disabled={!isAvailable || isChecking}
+          >
+            Claim Link <ArrowRight className="ml-2 w-5 h-5" />
           </Button>
         </motion.div>
+        
+        {isAvailable === false && !isChecking && (
+          <motion.p 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-red-500 mt-2 text-sm"
+          >
+            Username is already taken
+          </motion.p>
+        )}
 
         <motion.div 
           initial={{ opacity: 0 }}

@@ -52,6 +52,8 @@ export default function ProfileRenderer({ user, links, isPreview = false }: Prof
   // Styles
   const containerStyle = {
     background: activeTheme.background,
+    backgroundSize: activeTheme.bgSize,
+    animation: activeTheme.animation,
     color: activeTheme.textColor,
     fontFamily: activeTheme.fontStyle === 'mono' ? 'monospace' : activeTheme.fontStyle === 'serif' ? 'serif' : 'sans-serif',
   };

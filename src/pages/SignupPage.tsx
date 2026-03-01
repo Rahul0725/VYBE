@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -25,6 +25,8 @@ type SignupFormData = z.infer<typeof signupSchema>;
 export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const username = searchParams.get('username');
   
   const { register, handleSubmit, formState: { errors } } = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
@@ -39,7 +41,7 @@ export default function SignupPage() {
       });
       if (error) throw error;
       toast.success('Account created! Please check your email.');
-      navigate('/onboarding');
+      navigate('/onboarding', { state: { username } });
     } catch (error: any) {
       toast.error(error.message || 'An error occurred');
     } finally {
@@ -67,7 +69,11 @@ export default function SignupPage() {
             Join the movement
           </h1>
           <p className="text-white/60">
-            Create your account to claim your link
+            {username ? (
+              <>Claiming <span className="text-vybe-accent font-bold">@{username}</span></>
+            ) : (
+              'Create your account to claim your link'
+            )}
           </p>
         </div>
 

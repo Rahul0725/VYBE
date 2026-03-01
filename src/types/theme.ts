@@ -1,4 +1,29 @@
-export type TemplateId = 'minimal' | 'neon' | 'gradient' | 'glass' | 'bold';
+export type TemplateId = 
+  | 'minimal' 
+  | 'neon' 
+  | 'gradient' 
+  | 'glass' 
+  | 'bold'
+  | 'sunset'
+  | 'ocean'
+  | 'forest'
+  | 'midnight'
+  | 'cyber'
+  | 'retro'
+  | 'pastel'
+  | 'monochrome'
+  | 'galaxy'
+  | 'aurora'
+  | 'volcano'
+  | 'glacier'
+  | 'desert'
+  | 'jungle'
+  | 'candy'
+  | 'royal'
+  | 'slate'
+  | 'coffee'
+  | 'lavender'
+  | 'mint';
 
 export interface TemplateConfig {
   id: TemplateId;
@@ -12,6 +37,8 @@ export interface TemplateConfig {
   cardBg: string; // CSS value for link cards
   cardBorder?: string;
   cardShadow?: string;
+  animation?: string;
+  bgSize?: string;
 }
 
 export interface UserThemeConfig {

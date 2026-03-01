@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -14,7 +14,7 @@ import {
   Loader2, ArrowRight, UserCircle, Palette, Briefcase, Users, 
   Instagram, Youtube, Twitter, Facebook, Linkedin, Github, Globe, 
   Music, MessageCircle, Camera, Check, Plus, Trash2, Image as ImageIcon,
-  Smartphone, Link as LinkIcon
+  Smartphone, Link as LinkIcon, X
 } from 'lucide-react';
 import { TEMPLATES } from '../constants/templates';
 import { SchemaCheck } from '../components/SchemaCheck';
@@ -49,12 +49,62 @@ export default function OnboardingPage() {
   const [uploading, setUploading] = useState(false);
   const { user, isDemo } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { register: registerUsername, handleSubmit: handleUsernameSubmit, formState: { errors: usernameErrors } } = useForm({
+  const initialUsername = location.state?.username || '';
+
+  const { register: registerUsername, handleSubmit: handleUsernameSubmit, formState: { errors: usernameErrors }, watch: watchUsername } = useForm({
     resolver: zodResolver(usernameSchema),
-    defaultValues: { username: '' }
+    defaultValues: { username: initialUsername }
   });
+
+  const usernameValue = watchUsername('username');
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+
+  React.useEffect(() => {
+    const checkUsername = async () => {
+      if (!usernameValue || usernameValue.length < 3) {
+        setUsernameAvailable(null);
+        return;
+      }
+      
+      setIsCheckingUsername(true);
+      try {
+        // Simulate network delay for better UX feel or just proceed
+        // await new Promise(resolve => setTimeout(resolve, 300));
+
+        if (!isDemo && user) {
+          const { data: existingUser, error } = await supabase
+            .from('users')
+            .select('username')
+            .eq('username', usernameValue)
+            .single();
+          
+          if (error && error.code !== 'PGRST116') {
+             console.error('Error checking username:', error);
+             // Don't block on error, assume available but maybe log it
+          }
+          
+          setUsernameAvailable(!existingUser);
+        } else {
+           // In demo mode, everything is available
+           setUsernameAvailable(true);
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsCheckingUsername(false);
+      }
+    };
+
+    const timeoutId = setTimeout(() => {
+      checkUsername();
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [usernameValue, user, isDemo]);
 
   const { register: registerProfile, handleSubmit: handleProfileSubmit, formState: { errors: profileErrors }, setValue: setProfileValue, watch: watchProfile } = useForm({
     resolver: zodResolver(profileSchema),
@@ -277,13 +327,29 @@ export default function OnboardingPage() {
                       <Input 
                         id="username" 
                         placeholder="yourname" 
-                        className={`pl-24 ${usernameErrors.username ? 'border-red-500' : ''}`}
+                        className={`pl-24 pr-10 ${
+                          usernameErrors.username ? 'border-red-500' : 
+                          usernameAvailable === true ? 'border-green-500' : 
+                          usernameAvailable === false ? 'border-red-500' : ''
+                        }`}
                         {...registerUsername('username')}
                       />
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                        {isCheckingUsername ? (
+                          <Loader2 className="w-4 h-4 animate-spin text-white/40" />
+                        ) : usernameAvailable === true ? (
+                          <Check className="w-4 h-4 text-green-500" />
+                        ) : usernameAvailable === false ? (
+                          <X className="w-4 h-4 text-red-500" />
+                        ) : null}
+                      </div>
                     </div>
+                    {usernameAvailable === false && !isCheckingUsername && (
+                      <p className="text-red-500 text-xs mt-1">Username is already taken</p>
+                    )}
                     {usernameErrors.username && <p className="text-red-500 text-xs">{usernameErrors.username.message as string}</p>}
                   </div>
-                  <Button type="submit" variant="neon" className="w-full mt-auto" disabled={isLoading}>
+                  <Button type="submit" variant="neon" className="w-full mt-auto" disabled={isLoading || isCheckingUsername || usernameAvailable === false}>
                     {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Continue'} <ArrowRight className="ml-2 w-4 h-4" />
                   </Button>
                 </form>

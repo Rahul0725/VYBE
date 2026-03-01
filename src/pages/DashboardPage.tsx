@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
 import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
-import { Loader2, ExternalLink, Globe, EyeOff, LogOut } from 'lucide-react';
+import { Loader2, ExternalLink, Globe, EyeOff, LogOut, Eye, X } from 'lucide-react';
 import DashboardEditor from '../components/DashboardEditor';
 import DashboardPreview from '../components/DashboardPreview';
 import { SchemaCheck } from '../components/SchemaCheck';
@@ -17,6 +17,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
   const [isPublishing, setIsPublishing] = useState(false);
+  const [showMobilePreview, setShowMobilePreview] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -202,16 +203,26 @@ export default function DashboardPage() {
     <div className="h-screen bg-vybe-dark flex flex-col overflow-hidden">
       <SchemaCheck />
       {/* Header */}
-      <header className="h-16 border-b border-white/10 bg-vybe-darker/50 backdrop-blur-md flex items-center justify-between px-6 shrink-0 z-50">
+      <header className="h-16 border-b border-white/10 bg-vybe-darker/50 backdrop-blur-md flex items-center justify-between px-4 md:px-6 shrink-0 z-50">
         <div className="flex items-center gap-2">
           <span className="text-xl font-black tracking-tighter">VYBE<span className="text-vybe-accent">.</span></span>
-          <span className="px-2 py-0.5 rounded-full bg-white/10 text-xs font-medium text-white/60">Free Plan</span>
+          <span className="hidden sm:inline px-2 py-0.5 rounded-full bg-white/10 text-xs font-medium text-white/60">Free Plan</span>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 mr-4">
+        <div className="flex items-center gap-2 md:gap-4">
+          {/* Mobile Preview Toggle */}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="lg:hidden text-white/80 hover:text-white"
+            onClick={() => setShowMobilePreview(!showMobilePreview)}
+          >
+            {showMobilePreview ? <X className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+          </Button>
+
+          <div className="flex items-center gap-2 mr-2 md:mr-4">
             <span className={`w-2 h-2 rounded-full ${profile?.is_published ? 'bg-green-500 shadow-[0_0_8px_#22c55e]' : 'bg-yellow-500'}`} />
-            <span className="text-sm text-white/60">{profile?.is_published ? 'Live' : 'Draft'}</span>
+            <span className="hidden sm:inline text-sm text-white/60">{profile?.is_published ? 'Live' : 'Draft'}</span>
           </div>
 
           <Button 
@@ -219,37 +230,37 @@ export default function DashboardPage() {
             size="sm" 
             onClick={handlePublishToggle}
             disabled={isPublishing}
-            className="min-w-[100px]"
+            className="min-w-[80px] md:min-w-[100px]"
           >
             {isPublishing ? <Loader2 className="w-4 h-4 animate-spin" /> : (
               profile?.is_published ? (
-                <><EyeOff className="w-4 h-4 mr-2" /> Unpublish</>
+                <><EyeOff className="w-4 h-4 mr-2" /> <span className="hidden sm:inline">Unpublish</span><span className="sm:hidden">Hide</span></>
               ) : (
-                <><Globe className="w-4 h-4 mr-2" /> Go Live</>
+                <><Globe className="w-4 h-4 mr-2" /> <span className="hidden sm:inline">Go Live</span><span className="sm:hidden">Live</span></>
               )
             )}
           </Button>
 
           {profile?.is_published && (
-            <Button variant="ghost" size="sm" asChild>
+            <Button variant="ghost" size="icon" className="hidden sm:flex" asChild>
               <a href={`/${profile.username}`} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="w-4 h-4" />
               </a>
             </Button>
           )}
 
-          <div className="h-6 w-px bg-white/10 mx-2" />
+          <div className="h-6 w-px bg-white/10 mx-1 md:mx-2 hidden sm:block" />
           
-          <Button variant="ghost" size="sm" onClick={() => signOut()}>
+          <Button variant="ghost" size="sm" onClick={() => signOut()} className="hidden sm:flex">
             <LogOut className="w-4 h-4 mr-2" /> Log out
           </Button>
         </div>
       </header>
 
       {/* Main Content - Split Layout */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden relative">
         {/* Left: Editor */}
-        <div className="flex-1 overflow-hidden flex flex-col relative z-10 border-r border-white/10">
+        <div className={`flex-1 overflow-hidden flex flex-col relative z-10 border-r border-white/10 transition-all duration-300 ${showMobilePreview ? 'hidden lg:flex' : 'flex'}`}>
           <DashboardEditor 
             user={profile} 
             links={links} 
@@ -260,9 +271,9 @@ export default function DashboardPage() {
           />
         </div>
 
-        {/* Right: Preview (Desktop only) */}
-        <div className="w-[400px] xl:w-[480px] hidden lg:block relative z-20 bg-black/20">
-          <DashboardPreview user={profile} links={links} />
+        {/* Right: Preview */}
+        <div className={`lg:w-[400px] xl:w-[480px] relative z-20 bg-black/20 transition-all duration-300 ${showMobilePreview ? 'w-full flex flex-1' : 'hidden lg:block'}`}>
+          <DashboardPreview user={profile} links={links} className="w-full" />
         </div>
       </div>
     </div>
