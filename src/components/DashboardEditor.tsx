@@ -3,14 +3,12 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { User } from '@supabase/supabase-js';
 import { Link } from '../types/link';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
-import { Switch } from './ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from './ui/dialog';
-import { Plus, Palette, Settings, Upload, Loader2, Trash2, Globe, ShieldAlert, Copy, Check } from 'lucide-react';
+import { Plus, Upload, Loader2, Trash2, Globe, ShieldAlert, Copy, Check } from 'lucide-react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { SortableLink } from './SortableLink';
@@ -18,6 +16,7 @@ import ThemeSelector from './ThemeSelector';
 import { TEMPLATES } from '../constants/templates';
 import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
+import { CollapsibleSection } from './ui/collapsible-section';
 
 const STORAGE_SQL = `-- Create the storage bucket if it doesn't exist
 insert into storage.buckets (id, name, public)
@@ -203,17 +202,11 @@ export default function DashboardEditor({ user, links, onUpdateUser, onUpdateLin
         </DialogContent>
       </Dialog>
 
-      <div className="max-w-2xl mx-auto">
-        <Tabs defaultValue="links" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-8 bg-black/40 border border-white/5 p-1 rounded-xl backdrop-blur-md sticky top-0 z-10">
-            <TabsTrigger value="links" className="data-[state=active]:bg-vybe-accent data-[state=active]:text-black rounded-lg transition-all font-medium">Links</TabsTrigger>
-            <TabsTrigger value="appearance" className="data-[state=active]:bg-vybe-accent data-[state=active]:text-black rounded-lg transition-all font-medium">Appearance</TabsTrigger>
-            <TabsTrigger value="settings" className="data-[state=active]:bg-vybe-accent data-[state=active]:text-black rounded-lg transition-all font-medium">Settings</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="links" className="space-y-6 focus-visible:outline-none">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold tracking-tight">Your Links</h2>
+      <div className="max-w-2xl mx-auto space-y-6">
+        <CollapsibleSection title="Links" defaultOpen={true}>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-zinc-400">Manage your links and their order.</p>
               <Button onClick={onAddLink} className="bg-vybe-accent text-black hover:bg-vybe-accent/90 gap-2">
                 <Plus className="w-4 h-4" /> Add Link
               </Button>
@@ -244,156 +237,146 @@ export default function DashboardEditor({ user, links, onUpdateUser, onUpdateLin
                 <Button onClick={onAddLink} variant="outline" className="border-white/20 hover:bg-white/10">Add Link</Button>
               </div>
             )}
-          </TabsContent>
+          </div>
+        </CollapsibleSection>
 
-          <TabsContent value="appearance" className="space-y-8 focus-visible:outline-none">
-            <section>
-              <h2 className="text-2xl font-bold mb-6 tracking-tight">Profile</h2>
-              <div className="bg-zinc-900/50 border border-white/10 rounded-2xl p-6 space-y-8 backdrop-blur-sm">
-                <div className="flex flex-col sm:flex-row items-center gap-8">
-                  <div className="relative group">
-                    <div className="w-28 h-28 rounded-full bg-zinc-800 overflow-hidden border-4 border-zinc-900 shadow-xl shrink-0">
-                      {user?.avatar_url ? (
-                        <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-white/20 bg-gradient-to-br from-white/5 to-white/10">
-                          {user?.username?.[0]?.toUpperCase()}
-                        </div>
-                      )}
+        <CollapsibleSection title="Profile">
+          <div className="space-y-8">
+            <div className="flex flex-col sm:flex-row items-center gap-8">
+              <div className="relative group">
+                <div className="w-28 h-28 rounded-full bg-zinc-800 overflow-hidden border-4 border-zinc-900 shadow-xl shrink-0">
+                  {user?.avatar_url ? (
+                    <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-white/20 bg-gradient-to-br from-white/5 to-white/10">
+                      {user?.username?.[0]?.toUpperCase()}
                     </div>
-                    <button 
-                      onClick={() => fileInputRef.current?.click()}
-                      className="absolute bottom-0 right-0 w-8 h-8 bg-vybe-accent rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform text-black"
-                    >
-                      {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-                    </button>
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      className="hidden"
-                      accept="image/*"
-                      onChange={handleFileUpload}
-                    />
-                  </div>
-                  
-                  <div className="flex-1 space-y-4 w-full text-center sm:text-left">
-                    <div>
-                      <h3 className="font-medium text-white">Profile Image</h3>
-                      <p className="text-sm text-zinc-400 mt-1">
-                        Recommended: Square JPG, PNG, or GIF. Max 5MB.
-                      </p>
-                    </div>
-                    <div className="flex gap-3 justify-center sm:justify-start">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => fileInputRef.current?.click()}
-                        disabled={uploading}
-                        className="border-white/10 hover:bg-white/5"
-                      >
-                        {uploading ? 'Uploading...' : 'Upload New'}
-                      </Button>
-                      {user?.avatar_url && (
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
-                          onClick={() => onUpdateUser({ avatar_url: null })}
-                        >
-                          Remove
-                        </Button>
-                      )}
-                    </div>
-                  </div>
+                  )}
                 </div>
-
-                <div className="space-y-5 border-t border-white/5 pt-6">
-                  <div className="space-y-2">
-                    <Label className="text-zinc-300">Display Name</Label>
-                    <Input 
-                      value={user?.display_name || ''} 
-                      onChange={(e) => onUpdateUser({ display_name: e.target.value })}
-                      className="bg-black/40 border-white/10 focus:border-vybe-accent/50 focus:ring-vybe-accent/20 h-11"
-                      placeholder="e.g. Alex Smith"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-zinc-300">Bio</Label>
-                    <Textarea 
-                      value={user?.bio || ''} 
-                      onChange={(e) => onUpdateUser({ bio: e.target.value })}
-                      className="bg-black/40 border-white/10 min-h-[120px] focus:border-vybe-accent/50 focus:ring-vybe-accent/20 resize-none p-4"
-                      placeholder="Tell the world about yourself..."
-                    />
-                    <p className="text-xs text-zinc-500 text-right">
-                      {(user?.bio || '').length}/150 characters
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold mb-6 tracking-tight">Themes</h2>
-              <div className="bg-zinc-900/50 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
-                <ThemeSelector 
-                  currentTemplateId={user?.theme_config?.templateId || 'minimal'} 
-                  onSelect={(id) => onUpdateUser({ theme_config: { ...user?.theme_config, templateId: id } })}
+                <button 
+                  onClick={() => fileInputRef.current?.click()}
+                  className="absolute bottom-0 right-0 w-8 h-8 bg-vybe-accent rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform text-black"
+                >
+                  {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                </button>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleFileUpload}
                 />
               </div>
-            </section>
-          </TabsContent>
-
-          <TabsContent value="settings" className="space-y-8 focus-visible:outline-none">
-            <h2 className="text-2xl font-bold mb-6 tracking-tight">Account Settings</h2>
-            
-            <div className="bg-zinc-900/50 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-sm">
-              <div className="p-6 space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="space-y-1">
-                    <Label className="text-base">Username</Label>
-                    <p className="text-sm text-zinc-400">Your unique URL: <span className="text-vybe-accent">https://vybe.indevs.in/{user?.username}</span></p>
-                  </div>
-                  <div className="relative">
-                    <Input 
-                      value={user?.username || ''} 
-                      disabled
-                      className="w-full sm:w-64 bg-black/40 border-white/10 font-mono text-zinc-400 pl-10"
-                    />
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600">@</div>
-                  </div>
-                </div>
-
-                <div className="h-px bg-white/5" />
-
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <Label className="text-base">Custom Domain</Label>
-                      <span className="px-2 py-0.5 rounded-full bg-vybe-accent/10 text-vybe-accent text-[10px] font-bold uppercase tracking-wider border border-vybe-accent/20">Pro</span>
-                    </div>
-                    <p className="text-sm text-zinc-400">Connect your own domain (e.g. yourname.com)</p>
-                  </div>
-                  <Button variant="outline" disabled className="border-white/10 opacity-50 cursor-not-allowed gap-2">
-                    <Globe className="w-4 h-4" /> Upgrade to Pro
-                  </Button>
-                </div>
-              </div>
               
-              <div className="bg-red-500/5 border-t border-red-500/10 p-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="space-y-1">
-                    <Label className="text-base text-red-400">Danger Zone</Label>
-                    <p className="text-sm text-red-400/60">Permanently delete your account and all data</p>
-                  </div>
-                  <Button variant="destructive" size="sm" className="bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 gap-2">
-                    <Trash2 className="w-4 h-4" /> Delete Account
+              <div className="flex-1 space-y-4 w-full text-center sm:text-left">
+                <div>
+                  <h3 className="font-medium text-white">Profile Image</h3>
+                  <p className="text-sm text-zinc-400 mt-1">
+                    Recommended: Square JPG, PNG, or GIF. Max 5MB.
+                  </p>
+                </div>
+                <div className="flex gap-3 justify-center sm:justify-start">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                    className="border-white/10 hover:bg-white/5"
+                  >
+                    {uploading ? 'Uploading...' : 'Upload New'}
                   </Button>
+                  {user?.avatar_url && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
+                      onClick={() => onUpdateUser({ avatar_url: null })}
+                    >
+                      Remove
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>
-          </TabsContent>
-        </Tabs>
+
+            <div className="space-y-5 border-t border-white/5 pt-6">
+              <div className="space-y-2">
+                <Label className="text-zinc-300">Display Name</Label>
+                <Input 
+                  value={user?.display_name || ''} 
+                  onChange={(e) => onUpdateUser({ display_name: e.target.value })}
+                  className="bg-black/40 border-white/10 focus:border-vybe-accent/50 focus:ring-vybe-accent/20 h-11"
+                  placeholder="e.g. Alex Smith"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-zinc-300">Bio</Label>
+                <Textarea 
+                  value={user?.bio || ''} 
+                  onChange={(e) => onUpdateUser({ bio: e.target.value })}
+                  className="bg-black/40 border-white/10 min-h-[120px] focus:border-vybe-accent/50 focus:ring-vybe-accent/20 resize-none p-4"
+                  placeholder="Tell the world about yourself..."
+                />
+                <p className="text-xs text-zinc-500 text-right">
+                  {(user?.bio || '').length}/150 characters
+                </p>
+              </div>
+            </div>
+          </div>
+        </CollapsibleSection>
+
+        <CollapsibleSection title="Themes">
+          <ThemeSelector 
+            currentTemplateId={user?.theme_config?.templateId || 'minimal'} 
+            onSelect={(id) => onUpdateUser({ theme_config: { ...user?.theme_config, templateId: id } })}
+          />
+        </CollapsibleSection>
+
+        <CollapsibleSection title="Settings">
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <Label className="text-base">Username</Label>
+                <p className="text-sm text-zinc-400">Your unique URL: <span className="text-vybe-accent">https://vybe.indevs.in/{user?.username}</span></p>
+              </div>
+              <div className="relative">
+                <Input 
+                  value={user?.username || ''} 
+                  disabled
+                  className="w-full sm:w-64 bg-black/40 border-white/10 font-mono text-zinc-400 pl-10"
+                />
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600">@</div>
+              </div>
+            </div>
+
+            <div className="h-px bg-white/5" />
+
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <Label className="text-base">Custom Domain</Label>
+                  <span className="px-2 py-0.5 rounded-full bg-vybe-accent/10 text-vybe-accent text-[10px] font-bold uppercase tracking-wider border border-vybe-accent/20">Pro</span>
+                </div>
+                <p className="text-sm text-zinc-400">Connect your own domain (e.g. yourname.com)</p>
+              </div>
+              <Button variant="outline" disabled className="border-white/10 opacity-50 cursor-not-allowed gap-2">
+                <Globe className="w-4 h-4" /> Upgrade to Pro
+              </Button>
+            </div>
+          </div>
+          
+          <div className="mt-8 bg-red-500/5 border border-red-500/10 rounded-xl p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <Label className="text-base text-red-400">Danger Zone</Label>
+                <p className="text-sm text-red-400/60">Permanently delete your account and all data</p>
+              </div>
+              <Button variant="destructive" size="sm" className="bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 gap-2">
+                <Trash2 className="w-4 h-4" /> Delete Account
+              </Button>
+            </div>
+          </div>
+        </CollapsibleSection>
       </div>
     </div>
   );
