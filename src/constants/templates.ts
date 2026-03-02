@@ -424,4 +424,187 @@ export const TEMPLATES: Record<string, TemplateConfig> = {
     cardBg: 'rgba(255, 255, 255, 0.2)',
     cardBorder: '1px solid rgba(255, 255, 255, 0.4)',
   },
+  creator_black_pro: {
+    id: 'creator_black_pro',
+    name: 'Creator Black Pro',
+    layout: 'stacked',
+    buttonStyle: 'pill', // Will override radius in renderer
+    fontStyle: 'modern',
+    background: '#0B0B0E',
+    textColor: '#FFFFFF',
+    accentColor: '#FFFFFF',
+    cardBg: '#1A1A1F',
+    cardBorder: '1px solid rgba(255, 255, 255, 0.05)',
+    cardShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
+  },
+  sunset_gradient_pro: {
+    id: 'sunset_gradient_pro',
+    name: 'Sunset Gradient Pro',
+    layout: 'stacked',
+    buttonStyle: 'rounded', // Will override radius to 20px in renderer
+    fontStyle: 'modern',
+    background: 'linear-gradient(180deg, #D0E1F9 0%, #E6E6FA 45%, #FFB7B2 100%)',
+    textColor: '#2D3748',
+    accentColor: '#4A5568',
+    cardBg: '#FFFFFF',
+    cardShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+    textOpacity: 0.9,
+  },
+  editorial_luxe: {
+    id: 'editorial_luxe',
+    name: 'Editorial Luxe',
+    layout: 'stacked',
+    buttonStyle: 'rounded',
+    fontStyle: 'serif',
+    background: '#F3EFE9',
+    textColor: '#1A1A1A',
+    accentColor: '#1A1A1A',
+    cardBg: 'transparent',
+    cardBorder: '1.5px solid #1A1A1A',
+    textOpacity: 1,
+  },
+  glass_elite: {
+    id: 'glass_elite',
+    name: 'Glass Elite',
+    layout: 'stacked',
+    buttonStyle: 'rounded',
+    fontStyle: 'modern',
+    background: '#0F172A', // Slate 900 base
+    textColor: '#FFFFFF',
+    accentColor: '#818CF8',
+    cardBg: 'rgba(255, 255, 255, 0.03)',
+    cardBorder: '1px solid rgba(255, 255, 255, 0.08)',
+    cardShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.3)',
+    cardBackdropBlur: 'blur(16px)',
+    blobAnimation: true,
+  },
+  classic_solid_pro: {
+    id: 'classic_solid_pro',
+    name: 'Classic Solid Pro',
+    layout: 'stacked',
+    buttonStyle: 'rounded',
+    fontStyle: 'modern',
+    background: '#39E09B', // Classic Linktree Green
+    textColor: '#000000',
+    accentColor: '#000000',
+    cardBg: '#FFFFFF',
+    cardShadow: '0 2px 4px rgba(0,0,0,0.08)',
+    textOpacity: 1,
+  },
+  clean_light_pro: {
+    id: 'clean_light_pro',
+    name: 'Clean Light Pro',
+    layout: 'stacked',
+    buttonStyle: 'rounded', // Will override radius to 14px in renderer
+    fontStyle: 'modern',
+    background: '#FFFFFF',
+    textColor: '#000000',
+    accentColor: '#000000',
+    cardBg: '#000000',
+    cardShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', // Subtle shadow
+    textOpacity: 1,
+  },
+  soft_dark_pro: {
+    id: 'soft_dark_pro',
+    name: 'Soft Dark Pro',
+    layout: 'stacked',
+    buttonStyle: 'rounded', // Will override radius to 14px in renderer
+    fontStyle: 'modern',
+    background: '#121214',
+    textColor: '#FFFFFF',
+    accentColor: '#FFFFFF',
+    cardBg: '#1C1C22',
+    textOpacity: 1,
+  },
+  solid_light_core: {
+    id: 'solid_light_core',
+    name: 'Solid Light Core',
+    layout: 'stacked',
+    buttonStyle: 'rounded', // Will override radius to 14px in renderer
+    fontStyle: 'modern',
+    background: '#FFFFFF',
+    textColor: '#000000',
+    accentColor: '#000000',
+    cardBg: '#000000',
+    textOpacity: 1,
+  },
+  accent_solid_minimal: {
+    id: 'accent_solid_minimal',
+    name: 'Accent Solid Minimal',
+    layout: 'stacked',
+    buttonStyle: 'rounded', // Will override radius to 14px in renderer
+    fontStyle: 'modern',
+    background: '#4F46E5', // Default accent color (Indigo 600)
+    textColor: '#FFFFFF',
+    accentColor: '#FFFFFF',
+    cardBg: '#FFFFFF',
+    cardShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+    textOpacity: 1,
+  },
+  '3d_elevation_stack': {
+    id: '3d_elevation_stack',
+    name: '3D Elevation Stack',
+    layout: 'stacked',
+    buttonStyle: 'rounded', // Will override radius to 16px in renderer
+    fontStyle: 'modern',
+    background: '#101014',
+    textColor: '#FFFFFF',
+    accentColor: '#FFFFFF',
+    cardBg: '#1C1C22',
+    cardShadow: '0 4px 10px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)', // Base shadow
+    textOpacity: 1,
+  },
+  'floating_panels_pro': {
+    id: 'floating_panels_pro',
+    name: 'Floating Panels Pro',
+    layout: 'stacked',
+    buttonStyle: 'rounded', // Will override radius to 18px in renderer
+    fontStyle: 'modern',
+    background: '#0F172A', // Midnight Blue
+    textColor: '#FFFFFF',
+    accentColor: '#38BDF8', // Light blue accent
+    cardBg: '#1E293B', // Slate 800
+    cardShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)', // Layered shadow + top highlight
+    textOpacity: 1,
+  },
+  'royal_ember_3d': {
+    id: 'royal_ember_3d',
+    name: 'Royal Ember 3D',
+    layout: 'stacked',
+    buttonStyle: 'rounded', // Will override radius to 18px in renderer
+    fontStyle: 'modern',
+    background: '#2B0F54', // Solid deep royal purple
+    textColor: '#FFFFFF',
+    accentColor: '#FF7A18', // Orange accent
+    cardBg: '#3A136A', // Rich purple
+    cardBorder: '2px solid #FF7A18',
+    cardShadow: '0 10px 20px -5px rgba(43, 15, 84, 0.8), 0 0 15px rgba(255, 122, 24, 0.15)', // Deep purple shadow + soft orange glow
+    textOpacity: 1,
+  },
+  ember_contrast_pro: {
+    id: 'ember_contrast_pro',
+    name: 'Ember Contrast Pro',
+    layout: 'stacked',
+    buttonStyle: 'rounded',
+    fontStyle: 'modern',
+    background: '#F97316', // Solid vibrant orange
+    textColor: '#FFFFFF',
+    accentColor: '#3B0764', // Deep purple
+    cardBg: '#3B0764', // Deep purple buttons
+    cardShadow: '0 10px 20px -5px rgba(59, 7, 100, 0.5)',
+    textOpacity: 1,
+  },
+  ultra_depth_purple: {
+    id: 'ultra_depth_purple',
+    name: 'Ultra Depth Purple Core',
+    layout: 'stacked',
+    buttonStyle: 'rounded',
+    fontStyle: 'modern',
+    background: '#240046', // Solid dark violet
+    textColor: '#FFFFFF',
+    accentColor: '#FF9100', // Orange accent
+    cardBg: '#3C096C', // Lighter purple
+    cardShadow: '0 10px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
+    textOpacity: 1,
+  },
 };

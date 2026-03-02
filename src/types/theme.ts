@@ -28,7 +28,21 @@ export type TemplateId =
   | 'premium_dark'
   | 'neon_pulse'
   | 'liquid_glass'
-  | 'motion_stack';
+  | 'motion_stack'
+  | 'creator_black_pro'
+  | 'sunset_gradient_pro'
+  | 'editorial_luxe'
+  | 'glass_elite'
+  | 'classic_solid_pro'
+  | 'clean_light_pro'
+  | 'soft_dark_pro'
+  | 'solid_light_core'
+  | 'accent_solid_minimal'
+  | '3d_elevation_stack'
+  | 'floating_panels_pro'
+  | 'royal_ember_3d'
+  | 'ember_contrast_pro'
+  | 'ultra_depth_purple';
 
 export interface TemplateConfig {
   id: TemplateId;
