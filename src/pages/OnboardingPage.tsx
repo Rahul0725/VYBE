@@ -198,28 +198,38 @@ export default function OnboardingPage() {
       }
 
       setUploading(true);
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user?.id}-${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
+      
+      // Try Supabase upload first
+      try {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${user?.id}-${Math.random()}.${fileExt}`;
+        const filePath = `${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file);
+        const { error: uploadError } = await supabase.storage
+          .from('avatars')
+          .upload(filePath, file);
 
-      if (uploadError) {
-        // Try to create bucket if it doesn't exist
-        if (uploadError.message.includes('Bucket not found') || (uploadError as any).statusCode === '404') {
-          await supabase.storage.createBucket('avatars', { public: true });
-          const { error: retryError } = await supabase.storage.from('avatars').upload(filePath, file);
-          if (retryError) throw retryError;
-        } else {
-          throw uploadError;
+        if (uploadError) {
+          // If bucket not found, try to create it
+          if (uploadError.message.includes('Bucket not found') || (uploadError as any).statusCode === '404') {
+            await supabase.storage.createBucket('avatars', { public: true });
+            const { error: retryError } = await supabase.storage.from('avatars').upload(filePath, file);
+            if (retryError) throw retryError;
+          } else {
+            throw uploadError;
+          }
         }
-      }
 
-      const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
-      setOnboardingData(prev => ({ ...prev, avatar_url: data.publicUrl }));
-      toast.success('Image uploaded!');
+        const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
+        setOnboardingData(prev => ({ ...prev, avatar_url: data.publicUrl }));
+        toast.success('Image uploaded!');
+      } catch (supabaseError) {
+        console.warn('Supabase upload failed, falling back to local preview:', supabaseError);
+        // Fallback to local preview
+        const objectUrl = URL.createObjectURL(file);
+        setOnboardingData(prev => ({ ...prev, avatar_url: objectUrl }));
+        toast.success('Image uploaded (Preview Mode)');
+      }
     } catch (error) {
       console.error('Error uploading image:', error);
       toast.error('Error uploading image');

@@ -107,9 +107,9 @@ export default function LandingPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="flex flex-col lg:flex-row items-center gap-8 w-full max-w-4xl justify-center"
+          className="flex flex-col lg:flex-row items-center gap-8 w-full max-w-4xl justify-center px-4"
         >
-          <div className="relative">
+          <div className="relative z-0 w-full max-w-[320px] flex justify-center">
             <div className="landing-grid absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-50"></div>
             <div className="landing-poda">
               <div className="landing-glow"></div>
@@ -118,7 +118,7 @@ export default function LandingPage() {
               <div className="landing-darkBorderBg"></div>
               <div className="landing-white"></div>
               <div className="landing-border"></div>
-              <div className="landing-main">
+              <div className="landing-main w-full flex justify-center">
                 <input 
                   placeholder="yourname" 
                   type="text" 
@@ -179,7 +179,7 @@ export default function LandingPage() {
           <Button 
             variant="neon" 
             size="lg" 
-            className="shrink-0 h-14 px-8 rounded-xl z-10" 
+            className="shrink-0 h-14 px-8 rounded-xl relative z-20 mt-8 lg:mt-0 w-full sm:w-auto" 
             onClick={handleClaim}
             disabled={!isAvailable || isChecking}
           >

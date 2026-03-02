@@ -23,7 +23,9 @@ export type TemplateId =
   | 'slate'
   | 'coffee'
   | 'lavender'
-  | 'mint';
+  | 'mint'
+  | 'aurora_motion'
+  | 'premium_dark';
 
 export interface TemplateConfig {
   id: TemplateId;
@@ -39,6 +41,12 @@ export interface TemplateConfig {
   cardShadow?: string;
   animation?: string;
   bgSize?: string;
+  // Advanced styling options
+  cardBackdropBlur?: string;
+  avatarAnimation?: string;
+  containerGlass?: boolean;
+  blobAnimation?: boolean;
+  textOpacity?: number;
 }
 
 export interface UserThemeConfig {

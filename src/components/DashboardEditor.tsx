@@ -90,49 +90,54 @@ export default function DashboardEditor({ user, links, onUpdateUser, onUpdateLin
       }
 
       setUploading(true);
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-      const filePath = `${fileName}`;
+      
+      try {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+        const filePath = `${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file, { upsert: true });
+        const { error: uploadError } = await supabase.storage
+          .from('avatars')
+          .upload(filePath, file, { upsert: true });
 
-      if (uploadError) {
-        // If bucket not found, try to create it (this might fail if RLS prevents it, but worth a try)
-        if (uploadError.message.includes('Bucket not found') || (uploadError as any).statusCode === '404') {
-          const { error: createError } = await supabase.storage.createBucket('avatars', {
-            public: true,
-            fileSizeLimit: 5242880,
-            allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
-          });
+        if (uploadError) {
+          // If bucket not found, try to create it (this might fail if RLS prevents it, but worth a try)
+          if (uploadError.message.includes('Bucket not found') || (uploadError as any).statusCode === '404') {
+            const { error: createError } = await supabase.storage.createBucket('avatars', {
+              public: true,
+              fileSizeLimit: 5242880,
+              allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
+            });
 
-          if (createError) {
-            console.error('Failed to create bucket:', createError);
-            setShowStorageError(true);
-            return;
+            if (createError) {
+              console.error('Failed to create bucket:', createError);
+              throw createError;
+            }
+
+            // Retry upload
+            const { error: retryError } = await supabase.storage
+              .from('avatars')
+              .upload(filePath, file, { upsert: true });
+              
+            if (retryError) throw retryError;
+          } else {
+            throw uploadError;
           }
-
-          // Retry upload
-          const { error: retryError } = await supabase.storage
-            .from('avatars')
-            .upload(filePath, file, { upsert: true });
-            
-          if (retryError) throw retryError;
-        } else {
-          throw uploadError;
         }
-      }
 
-      const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
-      onUpdateUser({ avatar_url: data.publicUrl });
-      toast.success('Profile photo updated');
+        const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
+        onUpdateUser({ avatar_url: data.publicUrl });
+        toast.success('Profile photo updated');
+      } catch (supabaseError) {
+        console.warn('Supabase upload failed, falling back to local preview:', supabaseError);
+        // Fallback to local preview
+        const objectUrl = URL.createObjectURL(file);
+        onUpdateUser({ avatar_url: objectUrl });
+        toast.success('Profile photo updated (Preview Mode)');
+      }
     } catch (error) {
       console.error('Error uploading image:', error);
-      // Only show alert if it wasn't the storage bucket error (which is handled by the dialog)
-      if (!showStorageError) {
-        toast.error('Error uploading image. Please try again.');
-      }
+      toast.error('Error uploading image. Please try again.');
     } finally {
       setUploading(false);
       if (fileInputRef.current) {

@@ -64,11 +64,21 @@ export default function ProfileRenderer({ user, links, isPreview = false }: Prof
     boxShadow: activeTheme.cardShadow || 'none',
     color: activeTheme.textColor,
     borderRadius: activeTheme.buttonStyle === 'pill' ? '9999px' : activeTheme.buttonStyle === 'square' ? '0px' : '16px',
+    backdropFilter: activeTheme.cardBackdropBlur || 'none',
   };
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden transition-colors duration-500" style={containerStyle}>
       
+      {/* Background Blobs for Aurora Motion */}
+      {activeTheme.blobAnimation && (
+        <>
+          <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-500/30 blur-[100px] animate-pulse" style={{ animationDuration: '8s' }} />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-cyan-500/30 blur-[100px] animate-pulse" style={{ animationDuration: '10s', animationDelay: '1s' }} />
+          <div className="absolute top-[40%] left-[40%] w-[30%] h-[30%] rounded-full bg-violet-500/20 blur-[80px] animate-pulse" style={{ animationDuration: '12s', animationDelay: '2s' }} />
+        </>
+      )}
+
       {/* Share Button */}
       <div className="absolute top-6 right-6 z-20">
         <button 
@@ -80,7 +90,7 @@ export default function ProfileRenderer({ user, links, isPreview = false }: Prof
         </button>
       </div>
 
-      <div className="w-full max-w-2xl relative z-10 flex flex-col items-center">
+      <div className={`w-full max-w-2xl relative z-10 flex flex-col items-center ${activeTheme.containerGlass ? 'glass-panel p-8 rounded-3xl backdrop-blur-2xl border-white/10' : ''}`}>
         {/* Profile Info */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -88,22 +98,28 @@ export default function ProfileRenderer({ user, links, isPreview = false }: Prof
           transition={{ duration: 0.5 }}
           className="flex flex-col items-center text-center mb-12 mt-8"
         >
-          <div className="w-32 h-32 rounded-full overflow-hidden mb-6 border-4 border-opacity-20 border-current">
+          <div 
+            className="w-32 h-32 rounded-full overflow-hidden mb-6 border-4 border-opacity-20 border-current relative"
+            style={{ animation: activeTheme.avatarAnimation || 'none' }}
+          >
+            {activeTheme.id === 'aurora_motion' && (
+              <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-indigo-500 via-purple-500 to-cyan-500 opacity-50 blur-md -z-10 animate-spin-slow" />
+            )}
             {user.avatar_url ? (
-              <img src={user.avatar_url} alt={user.username} className="w-full h-full object-cover" />
+              <img src={user.avatar_url} alt={user.username} className="w-full h-full object-cover relative z-10" />
             ) : (
-              <div className="w-full h-full bg-gray-200 flex items-center justify-center text-4xl font-bold opacity-50">
+              <div className="w-full h-full bg-gray-200 flex items-center justify-center text-4xl font-bold opacity-50 relative z-10">
                 {user.username?.[0]?.toUpperCase()}
               </div>
             )}
           </div>
 
-          <h1 className="text-3xl font-black tracking-tight mb-2">
+          <h1 className="text-3xl font-black tracking-tight mb-2" style={{ opacity: activeTheme.textOpacity || 1 }}>
             {user.display_name || `@${user.username}`}
           </h1>
           
           {user.bio && (
-            <p className="text-lg max-w-md opacity-80 font-medium">
+            <p className="text-lg max-w-md font-medium" style={{ opacity: (activeTheme.textOpacity || 1) * 0.8 }}>
               {user.bio}
             </p>
           )}
@@ -117,13 +133,13 @@ export default function ProfileRenderer({ user, links, isPreview = false }: Prof
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.1 * index }}
-              whileHover={{ scale: 1.02 }}
+              whileHover={{ scale: 1.02, boxShadow: activeTheme.id === 'aurora_motion' ? '0 0 20px rgba(34, 211, 238, 0.3)' : undefined }}
               whileTap={{ scale: 0.98 }}
               onClick={() => handleLinkClick(link)}
               className="w-full p-4 flex items-center justify-center text-center font-bold text-lg transition-all relative group min-h-[64px]"
               style={cardStyle}
             >
-              <span className="relative z-10">{link.title}</span>
+              <span className="relative z-10" style={{ opacity: activeTheme.textOpacity || 1 }}>{link.title}</span>
               {activeTheme.buttonStyle === 'hard-shadow' && (
                 <div className="absolute inset-0 border-2 border-current translate-x-1 translate-y-1 -z-10" />
               )}
@@ -133,7 +149,7 @@ export default function ProfileRenderer({ user, links, isPreview = false }: Prof
 
         {/* Branding */}
         <div className="mt-16 text-center">
-          <a href="/" className="inline-flex items-center gap-2 text-sm font-bold opacity-50 hover:opacity-100 transition-opacity">
+          <a href="/" className="inline-flex items-center gap-2 text-sm font-bold hover:opacity-100 transition-opacity" style={{ opacity: (activeTheme.textOpacity || 1) * 0.5 }}>
             Powered by VYBE<span className="text-current">.</span>
           </a>
         </div>
