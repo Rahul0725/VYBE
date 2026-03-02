@@ -207,13 +207,13 @@ export default function OnboardingPage() {
 
         const { error: uploadError } = await supabase.storage
           .from('avatars')
-          .upload(filePath, file);
+          .upload(filePath, file, { upsert: true });
 
         if (uploadError) {
           // If bucket not found, try to create it
           if (uploadError.message.includes('Bucket not found') || (uploadError as any).statusCode === '404') {
             await supabase.storage.createBucket('avatars', { public: true });
-            const { error: retryError } = await supabase.storage.from('avatars').upload(filePath, file);
+            const { error: retryError } = await supabase.storage.from('avatars').upload(filePath, file, { upsert: true });
             if (retryError) throw retryError;
           } else {
             throw uploadError;
