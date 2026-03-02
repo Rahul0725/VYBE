@@ -19,24 +19,38 @@ import { TEMPLATES } from '../constants/templates';
 import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
 
-const STORAGE_SQL = `-- Create a storage bucket for avatars
+const STORAGE_SQL = `-- Create the storage bucket if it doesn't exist
 insert into storage.buckets (id, name, public)
 values ('avatars', 'avatars', true)
 on conflict (id) do nothing;
 
--- Allow public access to view avatars
+-- Remove existing policies to avoid conflicts
+drop policy if exists "Avatar images are publicly accessible." on storage.objects;
+drop policy if exists "Users can upload their own avatar." on storage.objects;
+drop policy if exists "Users can update their own avatar." on storage.objects;
+drop policy if exists "Users can delete their own avatar." on storage.objects;
+
+-- 1. Allow public access to view avatars
 create policy "Avatar images are publicly accessible."
   on storage.objects for select
   using ( bucket_id = 'avatars' );
 
--- Allow authenticated users to upload their own avatar
+-- 2. Allow authenticated users to upload files to the avatars bucket
 create policy "Users can upload their own avatar."
   on storage.objects for insert
+  to authenticated
   with check ( bucket_id = 'avatars' );
 
--- Allow users to update their own avatar
+-- 3. Allow users to update their own files
 create policy "Users can update their own avatar."
   on storage.objects for update
+  to authenticated
+  using ( bucket_id = 'avatars' );
+
+-- 4. Allow users to delete their own files
+create policy "Users can delete their own avatar."
+  on storage.objects for delete
+  to authenticated
   using ( bucket_id = 'avatars' );`;
 
 interface DashboardEditorProps {
@@ -128,8 +142,17 @@ export default function DashboardEditor({ user, links, onUpdateUser, onUpdateLin
         const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
         onUpdateUser({ avatar_url: data.publicUrl });
         toast.success('Profile photo updated');
-      } catch (supabaseError) {
+      } catch (supabaseError: any) {
         console.warn('Supabase upload failed, falling back to local preview:', supabaseError);
+        
+        // Show storage error dialog if it's a bucket/permission issue
+        const errorMessage = supabaseError?.message || '';
+        if (errorMessage.includes('Bucket not found') || 
+            errorMessage.includes('row-level security') || 
+            errorMessage.includes('new row violates row-level security policy')) {
+          setShowStorageError(true);
+        }
+
         // Fallback to local preview
         const objectUrl = URL.createObjectURL(file);
         onUpdateUser({ avatar_url: objectUrl });
