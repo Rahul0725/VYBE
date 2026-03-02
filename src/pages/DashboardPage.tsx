@@ -242,7 +242,7 @@ export default function DashboardPage() {
           </Button>
 
           {profile?.is_published && (
-            <Button variant="ghost" size="icon" className="hidden sm:flex" asChild>
+            <Button variant="ghost" size="icon" className="flex" asChild>
               <a href={`/${profile.username}`} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="w-4 h-4" />
               </a>

@@ -107,35 +107,79 @@ export default function LandingPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="flex flex-col sm:flex-row gap-4 w-full max-w-md"
+          className="flex flex-col lg:flex-row items-center gap-8 w-full max-w-4xl justify-center"
         >
-          <div className="relative flex-1">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 font-medium">vybe.bio/</span>
-            <input 
-              type="text" 
-              placeholder="yourname"
-              value={username}
-              onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9._-]/g, ''))}
-              className={`w-full h-14 pl-24 pr-12 rounded-full bg-white/5 border text-white focus:outline-none transition-colors ${
-                isAvailable === true ? 'border-green-500 focus:border-green-500' :
-                isAvailable === false ? 'border-red-500 focus:border-red-500' :
-                'border-white/10 focus:border-vybe-accent'
-              }`}
-            />
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-              {isChecking ? (
-                <Loader2 className="w-5 h-5 animate-spin text-white/40" />
-              ) : isAvailable === true ? (
-                <Check className="w-5 h-5 text-green-500" />
-              ) : isAvailable === false ? (
-                <X className="w-5 h-5 text-red-500" />
-              ) : null}
+          <div className="relative">
+            <div className="landing-grid absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-50"></div>
+            <div className="landing-poda">
+              <div className="landing-glow"></div>
+              <div className="landing-darkBorderBg"></div>
+              <div className="landing-darkBorderBg"></div>
+              <div className="landing-darkBorderBg"></div>
+              <div className="landing-white"></div>
+              <div className="landing-border"></div>
+              <div className="landing-main">
+                <input 
+                  placeholder="yourname" 
+                  type="text" 
+                  name="text" 
+                  className="landing-input" 
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9._-]/g, ''))}
+                />
+                <div className="landing-input-mask"></div>
+                <div className="landing-pink-mask"></div>
+                
+                <div className="landing-search-icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    viewBox="0 0 24 24"
+                    strokeWidth="2"
+                    strokeLinejoin="round"
+                    strokeLinecap="round"
+                    height="24"
+                    fill="none"
+                    className="feather feather-search"
+                  >
+                    <circle stroke="url(#search)" r="8" cy="11" cx="11"></circle>
+                    <line
+                      stroke="url(#searchl)"
+                      y2="16.65"
+                      y1="22"
+                      x2="16.65"
+                      x1="22"
+                    ></line>
+                    <defs>
+                      <linearGradient gradientTransform="rotate(50)" id="search">
+                        <stop stopColor="#f8e7f8" offset="0%"></stop>
+                        <stop stopColor="#b6a9b7" offset="50%"></stop>
+                      </linearGradient>
+                      <linearGradient id="searchl">
+                        <stop stopColor="#b6a9b7" offset="0%"></stop>
+                        <stop stopColor="#837484" offset="50%"></stop>
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                </div>
+
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none z-10">
+                  {isChecking ? (
+                    <Loader2 className="w-5 h-5 animate-spin text-white/40" />
+                  ) : isAvailable === true ? (
+                    <Check className="w-5 h-5 text-green-500" />
+                  ) : isAvailable === false ? (
+                    <X className="w-5 h-5 text-red-500" />
+                  ) : null}
+                </div>
+              </div>
             </div>
           </div>
+
           <Button 
             variant="neon" 
             size="lg" 
-            className="shrink-0" 
+            className="shrink-0 h-14 px-8 rounded-xl z-10" 
             onClick={handleClaim}
             disabled={!isAvailable || isChecking}
           >

@@ -17,10 +17,12 @@ import { SortableLink } from './SortableLink';
 import ThemeSelector from './ThemeSelector';
 import { TEMPLATES } from '../constants/templates';
 import { supabase } from '../lib/supabase';
+import { toast } from 'sonner';
 
 const STORAGE_SQL = `-- Create a storage bucket for avatars
 insert into storage.buckets (id, name, public)
-values ('avatars', 'avatars', true);
+values ('avatars', 'avatars', true)
+on conflict (id) do nothing;
 
 -- Allow public access to view avatars
 create policy "Avatar images are publicly accessible."
@@ -83,18 +85,18 @@ export default function DashboardEditor({ user, links, onUpdateUser, onUpdateLin
       if (!file) return;
 
       if (file.size > 5 * 1024 * 1024) {
-        alert('File size must be less than 5MB');
+        toast.error('File size must be less than 5MB');
         return;
       }
 
       setUploading(true);
       const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}-${Math.random()}.${fileExt}`;
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
       const filePath = `${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(filePath, file);
+        .upload(filePath, file, { upsert: true });
 
       if (uploadError) {
         // If bucket not found, try to create it (this might fail if RLS prevents it, but worth a try)
@@ -114,7 +116,7 @@ export default function DashboardEditor({ user, links, onUpdateUser, onUpdateLin
           // Retry upload
           const { error: retryError } = await supabase.storage
             .from('avatars')
-            .upload(filePath, file);
+            .upload(filePath, file, { upsert: true });
             
           if (retryError) throw retryError;
         } else {
@@ -124,11 +126,12 @@ export default function DashboardEditor({ user, links, onUpdateUser, onUpdateLin
 
       const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
       onUpdateUser({ avatar_url: data.publicUrl });
+      toast.success('Profile photo updated');
     } catch (error) {
       console.error('Error uploading image:', error);
       // Only show alert if it wasn't the storage bucket error (which is handled by the dialog)
       if (!showStorageError) {
-        alert('Error uploading image. Please try again.');
+        toast.error('Error uploading image. Please try again.');
       }
     } finally {
       setUploading(false);

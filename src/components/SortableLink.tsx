@@ -1,6 +1,6 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Trash2, Image as ImageIcon, Link as LinkIcon } from 'lucide-react';
+import { GripVertical, Trash2, Image as ImageIcon, Link as LinkIcon, ExternalLink } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Switch } from './ui/switch';
@@ -44,7 +44,20 @@ export const SortableLink: React.FC<SortableLinkProps> = ({ link, onDelete, onUp
             />
           </div>
           <div className="flex items-center gap-2">
-            <LinkIcon className="w-4 h-4 text-white/40 shrink-0" />
+            {link.url ? (
+              <a 
+                href={link.url.startsWith('http') ? link.url : `https://${link.url}`} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-white/40 hover:text-vybe-accent transition-colors shrink-0"
+                title="Test Link"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            ) : (
+              <LinkIcon className="w-4 h-4 text-white/40 shrink-0" />
+            )}
             <Input 
               value={link.url} 
               onChange={(e) => onUpdate(link.id, { url: e.target.value })}

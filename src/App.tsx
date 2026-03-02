@@ -9,6 +9,7 @@ import DashboardPage from './pages/DashboardPage';
 import BioPage from './pages/BioPage';
 import PreviewPage from './pages/PreviewPage';
 import OnboardingPage from './pages/OnboardingPage';
+import ExplorePage from './pages/ExplorePage';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -27,6 +28,7 @@ export default function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
+            <Route path="/explore" element={<ExplorePage />} />
             <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
             <Route path="/dashboard/*" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
             <Route path="/preview/:token" element={<PreviewPage />} />
