@@ -25,7 +25,10 @@ export type TemplateId =
   | 'lavender'
   | 'mint'
   | 'aurora_motion'
-  | 'premium_dark';
+  | 'premium_dark'
+  | 'neon_pulse'
+  | 'liquid_glass'
+  | 'motion_stack';
 
 export interface TemplateConfig {
   id: TemplateId;
@@ -46,6 +49,7 @@ export interface TemplateConfig {
   avatarAnimation?: string;
   containerGlass?: boolean;
   blobAnimation?: boolean;
+  gridAnimation?: boolean;
   textOpacity?: number;
 }
 

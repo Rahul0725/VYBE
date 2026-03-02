@@ -79,18 +79,34 @@ export default function ProfileRenderer({ user, links, isPreview = false }: Prof
         </>
       )}
 
+      {/* Neon Grid Background */}
+      {activeTheme.gridAnimation && (
+        <div className="neon-grid-bg" />
+      )}
+
+      {/* Motion Stack Background Light */}
+      {activeTheme.id === 'motion_stack' && (
+        <div className="motion-stack-light" />
+      )}
+
       {/* Share Button */}
       <div className="absolute top-6 right-6 z-20">
         <button 
           onClick={handleShare}
-          className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-md transition-transform hover:scale-110 bg-black/5 hover:bg-black/10"
+          className={`w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-md transition-transform hover:scale-110 bg-black/5 hover:bg-black/10 ${activeTheme.id === 'neon_pulse' ? 'shadow-[0_0_15px_rgba(0,255,255,0.5)] border border-cyan-500/50' : ''}`}
           style={{ color: activeTheme.textColor }}
         >
           {copied ? <Check className="w-5 h-5" /> : <Share2 className="w-5 h-5" />}
         </button>
       </div>
 
-      <div className={`w-full max-w-2xl relative z-10 flex flex-col items-center ${activeTheme.containerGlass ? 'glass-panel p-8 rounded-3xl backdrop-blur-2xl border-white/10' : ''}`}>
+      <div className={`w-full max-w-2xl relative z-10 flex flex-col items-center ${
+        activeTheme.id === 'liquid_glass' 
+          ? 'liquid-glass-panel p-10 rounded-[2rem]' 
+          : activeTheme.containerGlass 
+            ? 'glass-panel p-8 rounded-3xl backdrop-blur-2xl border-white/10' 
+            : ''
+      }`}>
         {/* Profile Info */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -98,23 +114,36 @@ export default function ProfileRenderer({ user, links, isPreview = false }: Prof
           transition={{ duration: 0.5 }}
           className="flex flex-col items-center text-center mb-12 mt-8"
         >
-          <div 
-            className="w-32 h-32 rounded-full overflow-hidden mb-6 border-4 border-opacity-20 border-current relative"
-            style={{ animation: activeTheme.avatarAnimation || 'none' }}
-          >
-            {activeTheme.id === 'aurora_motion' && (
-              <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-indigo-500 via-purple-500 to-cyan-500 opacity-50 blur-md -z-10 animate-spin-slow" />
+          <div className="relative mb-6">
+            {activeTheme.id === 'neon_pulse' && (
+              <div className="absolute inset-0 rounded-full" style={{ animation: 'pulse-ring 3s cubic-bezier(0.215, 0.61, 0.355, 1) infinite' }} />
             )}
-            {user.avatar_url ? (
-              <img src={user.avatar_url} alt={user.username} className="w-full h-full object-cover relative z-10" />
-            ) : (
-              <div className="w-full h-full bg-gray-200 flex items-center justify-center text-4xl font-bold opacity-50 relative z-10">
-                {user.username?.[0]?.toUpperCase()}
-              </div>
-            )}
+            <div 
+              className={`w-32 h-32 rounded-full overflow-hidden relative z-10 ${
+                activeTheme.id === 'liquid_glass' 
+                  ? 'liquid-avatar-card p-1' 
+                  : 'border-4 border-opacity-20 border-current'
+              }`}
+              style={{ animation: activeTheme.id !== 'neon_pulse' ? (activeTheme.avatarAnimation || 'none') : 'none' }}
+            >
+              {activeTheme.id === 'aurora_motion' && (
+                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-indigo-500 via-purple-500 to-cyan-500 opacity-50 blur-md -z-10 animate-spin-slow" />
+              )}
+              {user.avatar_url ? (
+                <img 
+                  src={user.avatar_url} 
+                  alt={user.username} 
+                  className={`w-full h-full object-cover relative z-10 ${activeTheme.id === 'liquid_glass' ? 'rounded-full' : ''}`} 
+                />
+              ) : (
+                <div className={`w-full h-full bg-gray-200 flex items-center justify-center text-4xl font-bold opacity-50 relative z-10 ${activeTheme.id === 'liquid_glass' ? 'rounded-full' : ''}`}>
+                  {user.username?.[0]?.toUpperCase()}
+                </div>
+              )}
+            </div>
           </div>
 
-          <h1 className="text-3xl font-black tracking-tight mb-2" style={{ opacity: activeTheme.textOpacity || 1 }}>
+          <h1 className={`text-3xl font-black tracking-tight mb-2 ${activeTheme.id === 'neon_pulse' ? 'neon-text-flicker uppercase' : ''}`} style={{ opacity: activeTheme.textOpacity || 1 }}>
             {user.display_name || `@${user.username}`}
           </h1>
           
@@ -133,10 +162,19 @@ export default function ProfileRenderer({ user, links, isPreview = false }: Prof
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.1 * index }}
-              whileHover={{ scale: 1.02, boxShadow: activeTheme.id === 'aurora_motion' ? '0 0 20px rgba(34, 211, 238, 0.3)' : undefined }}
+              whileHover={{ 
+                scale: 1.02, 
+                boxShadow: activeTheme.id === 'aurora_motion' 
+                  ? '0 0 20px rgba(34, 211, 238, 0.3)' 
+                  : activeTheme.id === 'neon_pulse'
+                    ? '0 0 20px rgba(0, 255, 255, 0.8), inset 0 0 20px rgba(0, 255, 255, 0.2)'
+                    : undefined 
+              }}
               whileTap={{ scale: 0.98 }}
               onClick={() => handleLinkClick(link)}
-              className="w-full p-4 flex items-center justify-center text-center font-bold text-lg transition-all relative group min-h-[64px]"
+              className={`w-full p-4 flex items-center justify-center text-center font-bold text-lg transition-all relative group min-h-[64px] ${
+                activeTheme.id === 'liquid_glass' ? 'liquid-card' : ''
+              } ${activeTheme.id === 'motion_stack' ? 'motion-stack-card' : ''}`}
               style={cardStyle}
             >
               <span className="relative z-10" style={{ opacity: activeTheme.textOpacity || 1 }}>{link.title}</span>
