@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 const seoSchema = z.object({
   seo_title: z.string().max(60, 'Title must be less than 60 characters').optional(),
   seo_description: z.string().max(160, 'Description must be less than 160 characters').optional(),
-  og_template_style: z.enum(['default', 'minimal', 'dark', 'gradient', 'glass']).default('default'),
+  og_template_style: z.enum(['default', 'minimal', 'dark', 'gradient', 'glass']).optional(),
 });
 
 type SeoFormValues = z.infer<typeof seoSchema>;

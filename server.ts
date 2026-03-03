@@ -15,6 +15,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = 3000;
 
+// Trust proxy for correct protocol/host behind Nginx/Cloud Run
+app.set('trust proxy', true);
+
 // Supabase Client for Server
 const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
 const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || '';
@@ -331,8 +334,8 @@ async function startServer() {
         const html = template.replace('<!--seo-head-->', head);
         res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
       } else {
-        // User not found, serve default template or 404 page (client side will handle 404 logic too)
-        res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
+        // User not found, fall through to default handler
+        next();
       }
     } catch (e) {
       console.error(e);
@@ -353,7 +356,28 @@ async function startServer() {
         template = await vite.transformIndexHtml(url, template);
       }
 
-      res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
+      const title = 'Vybe - Free Open Source Linktree Alternative';
+      const description = 'The free, open-source Linktree alternative. Create your bio link page in minutes.';
+      const image = 'https://vybe.indevs.in/og-image.png'; // Or a default image URL
+      const canonicalUrl = `${req.protocol}://${req.get('host')}${url}`;
+
+      const head = `
+        <title>${title}</title>
+        <meta name="description" content="${description}" />
+        <meta property="og:title" content="${title}" />
+        <meta property="og:description" content="${description}" />
+        <meta property="og:image" content="${image}" />
+        <meta property="og:url" content="${canonicalUrl}" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="${title}" />
+        <meta name="twitter:description" content="${description}" />
+        <meta name="twitter:image" content="${image}" />
+        <link rel="canonical" href="${canonicalUrl}" />
+      `;
+
+      const html = template.replace('<!--seo-head-->', head);
+
+      res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
     } catch (e) {
       console.error(e);
       res.status(500).end(e);
