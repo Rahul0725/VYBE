@@ -12,6 +12,8 @@ import OnboardingPage from './pages/OnboardingPage';
 import ExplorePage from './pages/ExplorePage';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import SeoSettingsPage from './pages/SeoSettingsPage';
+
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   if (loading) return <div className="h-screen w-screen flex items-center justify-center"><div className="w-8 h-8 border-4 border-vybe-accent border-t-transparent rounded-full animate-spin"></div></div>;
@@ -31,6 +33,7 @@ export default function App() {
             <Route path="/explore" element={<ExplorePage />} />
             <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
             <Route path="/dashboard/*" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+            <Route path="/admin/settings/seo" element={<ProtectedRoute><SeoSettingsPage /></ProtectedRoute>} />
             <Route path="/preview/:token" element={<PreviewPage />} />
             <Route path="/:username" element={<BioPage />} />
           </Routes>

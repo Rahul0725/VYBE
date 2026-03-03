@@ -15,7 +15,11 @@ create table public.users (
   custom_domain text unique,
   social_links jsonb default '{}'::jsonb,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-  updated_at timestamp with time zone default timezone('utc'::text, now()) not null
+  updated_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  seo_title text,
+  seo_description text,
+  og_image_url text,
+  og_template_style text default 'default'
 );
 
 -- Links table

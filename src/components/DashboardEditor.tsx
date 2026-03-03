@@ -18,6 +18,8 @@ import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
 import { CollapsibleSection } from './ui/collapsible-section';
 
+import { useNavigate } from 'react-router-dom';
+
 const STORAGE_SQL = `-- Create the storage bucket if it doesn't exist
 insert into storage.buckets (id, name, public)
 values ('avatars', 'avatars', true)
@@ -66,6 +68,7 @@ export default function DashboardEditor({ user, links, onUpdateUser, onUpdateLin
   const [showStorageError, setShowStorageError] = useState(false);
   const [copied, setCopied] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -330,6 +333,20 @@ export default function DashboardEditor({ user, links, onUpdateUser, onUpdateLin
             currentTemplateId={user?.theme_config?.templateId || 'minimal'} 
             onSelect={(id) => onUpdateUser({ theme_config: { ...user?.theme_config, templateId: id } })}
           />
+        </CollapsibleSection>
+
+        <CollapsibleSection title="SEO & Social">
+          <div className="space-y-4">
+            <p className="text-sm text-zinc-400">
+              Customize how your profile appears on Google, Twitter, and other social platforms.
+            </p>
+            <Button 
+              onClick={() => navigate('/admin/settings/seo')}
+              className="w-full bg-white/5 hover:bg-white/10 text-white border border-white/10"
+            >
+              Configure SEO & Social Previews
+            </Button>
+          </div>
         </CollapsibleSection>
 
         <CollapsibleSection title="Settings">
