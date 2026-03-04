@@ -49,13 +49,14 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    app.use(express.static(path.resolve(__dirname, 'dist')));
+    app.use(express.static(path.resolve(__dirname, 'dist'), { index: false }));
   }
 
   // OG Image Generation Route
   app.get('/api/og', async (req, res) => {
     try {
       const { username } = req.query;
+      console.log(`[OG] Generating image for username: ${username}`);
       
       if (!username || typeof username !== 'string') {
         return res.status(400).send('Username is required');
@@ -69,6 +70,7 @@ async function startServer() {
         .single();
 
       if (!user) {
+        console.log(`[OG] User not found: ${username}`);
         return res.status(404).send('User not found');
       }
 
@@ -294,6 +296,8 @@ async function startServer() {
     // Skip if it looks like a file extension
     if (username.includes('.')) return next();
 
+    console.log(`[Profile] Request for username: ${username}`);
+
     try {
       const { data: user } = await supabase
         .from('users')
@@ -311,10 +315,12 @@ async function startServer() {
       }
 
       if (user) {
+        console.log(`[Profile] User found: ${username}, injecting metadata`);
+        const baseUrl = process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
         const title = user.seo_title || `${user.display_name || user.username} | VYBE`;
         const description = user.seo_description || user.bio || `Check out ${user.display_name || user.username}'s links on VYBE.`;
-        const image = user.og_image_url || `${req.protocol}://${req.get('host')}/api/og?username=${username}`;
-        const url = `${req.protocol}://${req.get('host')}/${username}`;
+        const image = user.og_image_url || `${baseUrl}/api/og?username=${username}`;
+        const url = `${baseUrl}/${username}`;
 
         const head = `
           <title>${title}</title>
@@ -331,10 +337,11 @@ async function startServer() {
         `;
 
         // Inject into head
-        const html = template.replace('<!--seo-head-->', head);
+        const html = template.replace('<meta name="seo-placeholder" content="true" />', head);
         res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
       } else {
         // User not found, fall through to default handler
+        console.log(`[Profile] User not found: ${username}, falling through`);
         next();
       }
     } catch (e) {
@@ -347,6 +354,8 @@ async function startServer() {
   app.use('*', async (req, res) => {
     try {
       const url = req.originalUrl;
+      console.log(`[Fallback] Handling request for: ${url}`);
+      
       let template = fs.readFileSync(
         path.resolve(__dirname, process.env.NODE_ENV === 'production' ? 'dist/index.html' : 'index.html'),
         'utf-8'
@@ -358,8 +367,9 @@ async function startServer() {
 
       const title = 'Vybe - Free Open Source Linktree Alternative';
       const description = 'The free, open-source Linktree alternative. Create your bio link page in minutes.';
-      const image = 'https://vybe.indevs.in/og-image.png'; // Or a default image URL
-      const canonicalUrl = `${req.protocol}://${req.get('host')}${url}`;
+      const baseUrl = process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
+      const image = `${baseUrl}/og-image.png`; // Or a default image URL
+      const canonicalUrl = `${baseUrl}${url}`;
 
       const head = `
         <title>${title}</title>
@@ -375,7 +385,7 @@ async function startServer() {
         <link rel="canonical" href="${canonicalUrl}" />
       `;
 
-      const html = template.replace('<!--seo-head-->', head);
+      const html = template.replace('<meta name="seo-placeholder" content="true" />', head);
 
       res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
     } catch (e) {
