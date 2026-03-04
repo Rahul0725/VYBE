@@ -1,6 +1,43 @@
 import { TemplateConfig } from '../types/theme';
 
 export const TEMPLATES: Record<string, TemplateConfig> = {
+  sunset_motion_profile: {
+    id: 'sunset_motion_profile',
+    name: 'Sunset Motion Profile',
+    layout: 'stacked',
+    buttonStyle: 'rounded',
+    fontStyle: 'modern',
+    background: 'linear-gradient(180deg, #F6B37A 0%, #E47A2E 50%, #C7A6B8 100%)',
+    bgSize: '100% 200%',
+    animation: 'gradient-y 15s ease infinite',
+    textColor: '#FFFFFF',
+    accentColor: '#2C2C2C',
+    cardBg: '#FFFFFF',
+    cardBorder: 'none',
+    cardShadow: '0 8px 24px rgba(0, 0, 0, 0.08)',
+  },
+  brush_artist_card: {
+    id: 'brush_artist_card',
+    name: 'Brush Artist Card',
+    layout: 'stacked',
+    buttonStyle: 'rounded',
+    fontStyle: 'modern',
+    background: '#F4F4F4',
+    textColor: '#1A1A1A',
+    accentColor: '#9C948A',
+    cardBg: 'transparent',
+  },
+  yellow_hero_card: {
+    id: 'yellow_hero_card',
+    name: 'Yellow Hero Card',
+    layout: 'stacked',
+    buttonStyle: 'pill',
+    fontStyle: 'modern',
+    background: '#FFD600',
+    textColor: '#222222',
+    accentColor: '#8C7A00',
+    cardBg: '#F2F2F2',
+  },
   aurora_motion: {
     id: 'aurora_motion',
     name: 'Aurora Motion',
@@ -606,5 +643,59 @@ export const TEMPLATES: Record<string, TemplateConfig> = {
     cardBg: '#3C096C', // Lighter purple
     cardShadow: '0 10px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
     textOpacity: 1,
+  },
+  elegant_portrait_card: {
+    id: 'elegant_portrait_card',
+    name: 'Elegant Portrait Card',
+    layout: 'profile-card',
+    buttonStyle: 'circular',
+    fontStyle: 'serif',
+    background: '#B88986', // Solid dusty rose
+    textColor: '#8E4F4B', // Darker rose for text/icons
+    accentColor: '#F3E8E4', // Light beige
+    cardBg: '#F3E8E4', // Light beige for buttons
+    cardShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+    
+    // Template Engine Rules
+    templateName: 'Elegant Portrait Card',
+    layoutType: 'profile-card',
+    maxButtons: 2,
+    minButtons: 2,
+    allowIcons: true,
+    allowImages: false,
+    allowSections: false,
+    animationStyle: 'soft-micro',
+    layoutLocked: true,
+    buttonSlots: [
+      { id: 'primaryAction', position: 1, label: 'Primary Action', defaultIcon: 'instagram' },
+      { id: 'secondaryAction', position: 2, label: 'Secondary Action', defaultIcon: 'message-circle' }
+    ]
+  },
+  neon_pulse_profile: {
+    id: 'neon_pulse_profile',
+    name: 'Neon Pulse Profile',
+    layout: 'stacked',
+    buttonStyle: 'pill',
+    fontStyle: 'modern',
+    background: 'linear-gradient(135deg, #5B2EFF 0%, #8A5CFF 50%, #FF8A2A 100%)',
+    textColor: '#1F1F1F',
+    accentColor: '#FF8A2A',
+    cardBg: 'rgba(255, 255, 255, 0.85)',
+    cardBorder: '1px solid rgba(255, 255, 255, 0.4)',
+    cardShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
+    cardBackdropBlur: 'blur(20px)',
+    animation: 'gradient-diagonal 15s ease infinite',
+    bgSize: '400% 400%',
+    
+    // Template Engine Rules
+    templateName: 'Neon Pulse Profile',
+    layoutType: 'stacked',
+    maxButtons: 10,
+    minButtons: 1,
+    allowIcons: false,
+    allowImages: false,
+    allowSections: false,
+    animationStyle: 'flutter-stagger',
+    layoutLocked: true,
   },
 };

@@ -34,22 +34,45 @@ export default function ThemeSelector({ currentTemplateId, onSelect }: ThemeSele
                 className="w-12 h-12 rounded-full mb-2" 
                 style={{ background: template.cardBg, color: template.textColor }}
               />
-              <div 
-                className="w-full h-8 rounded-lg" 
-                style={{ 
-                  background: template.cardBg, 
-                  border: template.cardBorder,
-                  boxShadow: template.cardShadow
-                }}
-              />
-              <div 
-                className="w-full h-8 rounded-lg opacity-60" 
-                style={{ 
-                  background: template.cardBg,
-                  border: template.cardBorder,
-                  boxShadow: template.cardShadow
-                }}
-              />
+              {template.layout === 'profile-card' ? (
+                <div className="flex gap-2">
+                  <div 
+                    className="w-8 h-8 rounded-full" 
+                    style={{ 
+                      background: template.cardBg, 
+                      border: template.cardBorder,
+                      boxShadow: template.cardShadow
+                    }}
+                  />
+                  <div 
+                    className="w-8 h-8 rounded-full" 
+                    style={{ 
+                      background: template.cardBg, 
+                      border: template.cardBorder,
+                      boxShadow: template.cardShadow
+                    }}
+                  />
+                </div>
+              ) : (
+                <>
+                  <div 
+                    className="w-full h-8 rounded-lg" 
+                    style={{ 
+                      background: template.cardBg, 
+                      border: template.cardBorder,
+                      boxShadow: template.cardShadow
+                    }}
+                  />
+                  <div 
+                    className="w-full h-8 rounded-lg opacity-60" 
+                    style={{ 
+                      background: template.cardBg,
+                      border: template.cardBorder,
+                      boxShadow: template.cardShadow
+                    }}
+                  />
+                </>
+              )}
             </div>
 
             {/* Label */}

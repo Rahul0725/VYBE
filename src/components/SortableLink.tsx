@@ -12,9 +12,11 @@ interface SortableLinkProps {
   link: Link;
   onDelete: (id: string) => void;
   onUpdate: (id: string, updates: Partial<Link>) => void;
+  isLocked?: boolean;
+  slotLabel?: string;
 }
 
-export const SortableLink: React.FC<SortableLinkProps> = ({ link, onDelete, onUpdate }) => {
+export const SortableLink: React.FC<SortableLinkProps> = ({ link, onDelete, onUpdate, isLocked, slotLabel }) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: link.id });
   
   const style = {
@@ -24,10 +26,19 @@ export const SortableLink: React.FC<SortableLinkProps> = ({ link, onDelete, onUp
 
   return (
     <div ref={setNodeRef} style={style} className="bg-white/5 border border-white/10 rounded-xl p-3 md:p-4 mb-4 group hover:border-white/20 transition-colors">
-      <div className="flex items-start md:items-center gap-3 md:gap-4">
-        <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-white/40 hover:text-white transition-colors mt-2 md:mt-0">
-          <GripVertical className="w-5 h-5" />
+      {slotLabel && (
+        <div className="mb-3 flex items-center gap-2">
+          <span className="text-xs font-semibold uppercase tracking-wider text-vybe-accent bg-vybe-accent/10 px-2 py-1 rounded-md">
+            {slotLabel}
+          </span>
         </div>
+      )}
+      <div className="flex items-start md:items-center gap-3 md:gap-4">
+        {!isLocked && (
+          <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-white/40 hover:text-white transition-colors mt-2 md:mt-0">
+            <GripVertical className="w-5 h-5" />
+          </div>
+        )}
         
         <div className="flex-1 space-y-3 min-w-0">
           <div className="flex items-center gap-2">
@@ -67,14 +78,16 @@ export const SortableLink: React.FC<SortableLinkProps> = ({ link, onDelete, onUp
           </div>
         </div>
 
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="text-white/40 hover:text-red-500 hover:bg-red-500/10 transition-colors opacity-100 md:opacity-0 md:group-hover:opacity-100 shrink-0"
-          onClick={() => onDelete(link.id)}
-        >
-          <Trash2 className="w-4 h-4" />
-        </Button>
+        {!isLocked && (
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="text-white/40 hover:text-red-500 hover:bg-red-500/10 transition-colors opacity-100 md:opacity-0 md:group-hover:opacity-100 shrink-0"
+            onClick={() => onDelete(link.id)}
+          >
+            <Trash2 className="w-4 h-4" />
+          </Button>
+        )}
       </div>
       
       {/* Expanded Settings (Optional) */}

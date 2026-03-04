@@ -1,4 +1,6 @@
 export type TemplateId = 
+  | 'neon_pulse_profile'
+  | 'sunset_motion_profile'
   | 'minimal' 
   | 'neon' 
   | 'gradient' 
@@ -42,13 +44,23 @@ export type TemplateId =
   | 'floating_panels_pro'
   | 'royal_ember_3d'
   | 'ember_contrast_pro'
-  | 'ultra_depth_purple';
+  | 'ultra_depth_purple'
+  | 'elegant_portrait_card'
+  | 'yellow_hero_card'
+  | 'brush_artist_card';
+
+export interface TemplateSlot {
+  id: string;
+  position: number;
+  label?: string;
+  defaultIcon?: string;
+}
 
 export interface TemplateConfig {
   id: TemplateId;
   name: string;
-  layout: 'stacked' | 'grid';
-  buttonStyle: 'rounded' | 'square' | 'pill' | 'hard-shadow';
+  layout: 'stacked' | 'grid' | 'profile-card';
+  buttonStyle: 'rounded' | 'square' | 'pill' | 'hard-shadow' | 'circular';
   fontStyle: 'modern' | 'serif' | 'mono';
   background: string; // CSS value (color or gradient)
   textColor: string;
@@ -65,6 +77,18 @@ export interface TemplateConfig {
   blobAnimation?: boolean;
   gridAnimation?: boolean;
   textOpacity?: number;
+  
+  // Template Engine Rules
+  templateName?: string;
+  layoutType?: 'stacked' | 'grid' | 'profile-card';
+  maxButtons?: number;
+  minButtons?: number;
+  allowIcons?: boolean;
+  allowImages?: boolean;
+  allowSections?: boolean;
+  animationStyle?: string;
+  layoutLocked?: boolean;
+  buttonSlots?: TemplateSlot[];
 }
 
 export interface UserThemeConfig {

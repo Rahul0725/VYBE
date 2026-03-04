@@ -75,7 +75,20 @@ export default function DashboardEditor({ user, links, onUpdateUser, onUpdateLin
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
+  const currentTemplateId = user?.theme_config?.templateId || 'minimal';
+  const currentTemplate = TEMPLATES[currentTemplateId] || TEMPLATES.minimal;
+  const { maxButtons, layoutLocked, buttonSlots } = currentTemplate;
+
+  const handleAddLinkClick = () => {
+    if (maxButtons && links.length >= maxButtons) {
+      toast.error(`This template supports only ${maxButtons} buttons.`);
+      return;
+    }
+    onAddLink();
+  };
+
   const handleDragEnd = (event: any) => {
+    if (layoutLocked) return;
     const { active, over } = event;
     if (active.id !== over.id) {
       const oldIndex = links.findIndex((l) => l.id === active.id);
@@ -210,34 +223,73 @@ export default function DashboardEditor({ user, links, onUpdateUser, onUpdateLin
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <p className="text-sm text-zinc-400">Manage your links and their order.</p>
-              <Button onClick={onAddLink} className="bg-vybe-accent text-black hover:bg-vybe-accent/90 gap-2">
+              <Button 
+                onClick={handleAddLinkClick} 
+                disabled={maxButtons ? links.length >= maxButtons : false}
+                className="bg-vybe-accent text-black hover:bg-vybe-accent/90 gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 <Plus className="w-4 h-4" /> Add Link
               </Button>
             </div>
 
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <SortableContext items={links} strategy={verticalListSortingStrategy}>
-                <div className="space-y-3">
-                  {links.map((link) => (
-                    <SortableLink 
-                      key={link.id} 
-                      link={link} 
-                      onDelete={onDeleteLink} 
-                      onUpdate={handleUpdateLink}
-                    />
-                  ))}
-                </div>
-              </SortableContext>
-            </DndContext>
+            {buttonSlots && buttonSlots.length > 0 ? (
+              <div className="space-y-3">
+                {buttonSlots.map((slot, index) => {
+                  // Find existing link for this slot or just use the link at this index
+                  const link = links[index];
+                  if (link) {
+                    return (
+                      <div key={link.id} className="relative">
+                        <div className="absolute -left-2 top-0 bottom-0 w-1 bg-vybe-accent/50 rounded-full" />
+                        <SortableLink 
+                          link={link} 
+                          onDelete={layoutLocked ? () => {} : onDeleteLink} 
+                          onUpdate={handleUpdateLink}
+                          isLocked={layoutLocked}
+                          slotLabel={slot.label}
+                        />
+                      </div>
+                    );
+                  } else {
+                    return (
+                      <div key={`empty-${slot.id}`} className="p-4 border border-dashed border-white/20 rounded-xl bg-white/5 flex items-center justify-between">
+                        <div>
+                          <p className="text-white font-medium">{slot.label}</p>
+                          <p className="text-sm text-zinc-400">Empty slot</p>
+                        </div>
+                        <Button onClick={handleAddLinkClick} variant="outline" size="sm" className="border-white/10 hover:bg-white/10">
+                          Add Link
+                        </Button>
+                      </div>
+                    );
+                  }
+                })}
+              </div>
+            ) : (
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <SortableContext items={links} strategy={verticalListSortingStrategy}>
+                  <div className="space-y-3">
+                    {links.map((link) => (
+                      <SortableLink 
+                        key={link.id} 
+                        link={link} 
+                        onDelete={onDeleteLink} 
+                        onUpdate={handleUpdateLink}
+                      />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
+            )}
 
-            {links.length === 0 && (
+            {links.length === 0 && (!buttonSlots || buttonSlots.length === 0) && (
               <div className="text-center py-16 border-2 border-dashed border-white/10 rounded-2xl bg-white/5">
                 <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Plus className="w-8 h-8 text-white/20" />
                 </div>
                 <h3 className="text-lg font-medium text-white mb-2">No links yet</h3>
                 <p className="text-white/40 mb-6 max-w-xs mx-auto">Add your first link to start building your page.</p>
-                <Button onClick={onAddLink} variant="outline" className="border-white/20 hover:bg-white/10">Add Link</Button>
+                <Button onClick={handleAddLinkClick} variant="outline" className="border-white/20 hover:bg-white/10">Add Link</Button>
               </div>
             )}
           </div>
