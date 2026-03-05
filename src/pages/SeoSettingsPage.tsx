@@ -61,10 +61,10 @@ export default function SeoSettingsPage() {
       const { error } = await supabase
         .from('users')
         .update({
-          seo_title: data.seo_title,
-          seo_description: data.seo_description,
+          seo_title: data.seo_title || null,
+          seo_description: data.seo_description || null,
           og_template_style: data.og_template_style,
-          og_image_url: ogImageUrl,
+          og_image_url: ogImageUrl || null,
         })
         .eq('id', user.id);
 
@@ -157,8 +157,15 @@ export default function SeoSettingsPage() {
               <Label>Open Graph Image</Label>
               <div className="flex items-center gap-4">
                 {ogImageUrl && (
-                  <div className="w-20 h-20 rounded-lg overflow-hidden border border-gray-200">
+                  <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-gray-200 group">
                     <img src={ogImageUrl} alt="OG Preview" className="w-full h-full object-cover" />
+                    <button 
+                      type="button"
+                      onClick={() => setOgImageUrl(null)}
+                      className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <span className="text-white text-xs">Remove</span>
+                    </button>
                   </div>
                 )}
                 <div className="flex-1">

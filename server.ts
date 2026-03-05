@@ -112,14 +112,14 @@ async function startServer() {
       } else if (templateStyle === 'gradient') {
         bgStyle = {
           ...bgStyle,
-          backgroundImage: 'linear-gradient(to bottom right, #4f46e5, #ec4899)',
+          backgroundImage: 'linear-gradient(to bottom, #4f46e5, #ec4899)',
           color: '#ffffff',
         };
         textStyle = { color: '#ffffff' };
       } else if (templateStyle === 'glass') {
         bgStyle = {
           ...bgStyle,
-          backgroundImage: 'linear-gradient(to bottom right, #1e1b4b, #312e81)',
+          backgroundImage: 'linear-gradient(to bottom, #1e1b4b, #312e81)',
           color: '#ffffff',
         };
         textStyle = { color: '#ffffff' };
@@ -337,7 +337,7 @@ async function startServer() {
         `;
 
         // Inject into head
-        const html = template.replace('<meta name="seo-placeholder" content="true" />', head);
+        const html = template.replace('</head>', `${head}</head>`);
         res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
       } else {
         // User not found, fall through to default handler
@@ -385,7 +385,7 @@ async function startServer() {
         <link rel="canonical" href="${canonicalUrl}" />
       `;
 
-      const html = template.replace('<meta name="seo-placeholder" content="true" />', head);
+      const html = template.replace('</head>', `${head}</head>`);
 
       res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
     } catch (e) {
