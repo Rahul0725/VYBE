@@ -84,47 +84,73 @@ export default function ProfileRenderer({ user, links, isPreview = false }: Prof
     return <ExternalLink className="w-6 h-6" />;
   };
 
+  const getComicEmoji = (title: string) => {
+    const t = title.toLowerCase();
+    if (t.includes('web')) return '🚀';
+    if (t.includes('tube')) return '🎥';
+    if (t.includes('insta')) return '📸';
+    if (t.includes('shop')) return '🛒';
+    if (t.includes('project')) return '⭐';
+    if (t.includes('twitter') || t.includes('x')) return '🐦';
+    if (t.includes('music') || t.includes('spotify')) return '🎵';
+    return '✨';
+  };
+
   return (
-    <div className={`min-h-screen w-full flex flex-col items-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden transition-colors duration-500 ${isElegantPortraitCard ? 'justify-center' : ''}`} style={styles.container}>
+    <div className={`min-h-screen w-full flex flex-col items-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-x-hidden transition-colors duration-500 ${isElegantPortraitCard ? 'justify-center' : ''}`} style={styles.container}>
       
-      {/* Background Blobs for Aurora Motion */}
-      {activeTheme.blobAnimation && !isGlassElite && (
-        <>
-          <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-500/30 blur-[100px] animate-pulse" style={{ animationDuration: '8s' }} />
-          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-cyan-500/30 blur-[100px] animate-pulse" style={{ animationDuration: '10s', animationDelay: '1s' }} />
-          <div className="absolute top-[40%] left-[40%] w-[30%] h-[30%] rounded-full bg-violet-500/20 blur-[80px] animate-pulse" style={{ animationDuration: '12s', animationDelay: '2s' }} />
-        </>
-      )}
+      {/* Fixed Background Container to prevent scroll overflow */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        {/* Background Blobs for Aurora Motion */}
+        {activeTheme.blobAnimation && !isGlassElite && (
+          <>
+            <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-500/30 blur-[100px] animate-pulse" style={{ animationDuration: '8s' }} />
+            <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-cyan-500/30 blur-[100px] animate-pulse" style={{ animationDuration: '10s', animationDelay: '1s' }} />
+            <div className="absolute top-[40%] left-[40%] w-[30%] h-[30%] rounded-full bg-violet-500/20 blur-[80px] animate-pulse" style={{ animationDuration: '12s', animationDelay: '2s' }} />
+          </>
+        )}
 
-      {/* Glass Elite Specific Background */}
-      {isGlassElite && (
-        <>
-          <div className="absolute inset-0 bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#312e81] opacity-80" />
-          <div className="absolute top-[-20%] left-[20%] w-[600px] h-[600px] rounded-full bg-purple-500/20 blur-[120px] animate-blob" />
-          <div className="absolute bottom-[-20%] right-[20%] w-[500px] h-[500px] rounded-full bg-blue-500/20 blur-[100px] animate-blob animation-delay-2000" />
-          <div className="absolute top-[40%] right-[-10%] w-[400px] h-[400px] rounded-full bg-indigo-500/20 blur-[80px] animate-blob animation-delay-4000" />
-        </>
-      )}
+        {/* Glass Elite Specific Background */}
+        {isGlassElite && (
+          <>
+            <div className="absolute inset-0 bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#312e81] opacity-80" />
+            <div className="absolute top-[-20%] left-[20%] w-[600px] h-[600px] rounded-full bg-purple-500/20 blur-[120px] animate-blob" />
+            <div className="absolute bottom-[-20%] right-[20%] w-[500px] h-[500px] rounded-full bg-blue-500/20 blur-[100px] animate-blob animation-delay-2000" />
+            <div className="absolute top-[40%] right-[-10%] w-[400px] h-[400px] rounded-full bg-indigo-500/20 blur-[80px] animate-blob animation-delay-4000" />
+          </>
+        )}
 
-      {/* Creator Black Pro Glow */}
-      {isCreatorBlackPro && (
-        <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-white/5 blur-[120px] pointer-events-none" />
-      )}
+        {/* Creator Black Pro Glow */}
+        {isCreatorBlackPro && (
+          <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-white/5 blur-[120px]" />
+        )}
 
-      {/* Sunset Gradient Pro, Editorial Luxe & Sunset Motion Profile Grain */}
-      {(isSunsetGradientPro || isEditorialLuxe || isSunsetMotionProfile) && (
-        <div className={`absolute inset-0 pointer-events-none mix-blend-overlay ${isSunsetMotionProfile ? 'opacity-20' : 'opacity-40'}`} style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.65\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E")' }} />
-      )}
+        {/* Sunset Gradient Pro, Editorial Luxe & Sunset Motion Profile Grain */}
+        {(isSunsetGradientPro || isEditorialLuxe || isSunsetMotionProfile) && (
+          <div className={`absolute inset-0 mix-blend-overlay ${isSunsetMotionProfile ? 'opacity-20' : 'opacity-40'}`} style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.65\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E")' }} />
+        )}
 
-      {/* Neon Grid Background */}
-      {activeTheme.gridAnimation && (
-        <div className="neon-grid-bg" />
-      )}
+        {/* Neon Grid Background */}
+        {activeTheme.gridAnimation && (
+          <div className="neon-grid-bg" />
+        )}
 
-      {/* Motion Stack Background Light */}
-      {isMotionStack && (
-        <div className="motion-stack-light" />
-      )}
+        {/* Motion Stack Background Light */}
+        {isMotionStack && (
+          <div className="motion-stack-light" />
+        )}
+
+        {/* Comic Bio Stars */}
+        {themeFlags.isComicBio && (
+          <>
+            <div className="absolute text-[22px] animate-[float_6s_infinite_ease-in-out] top-[10%] left-[20%]">⭐</div>
+            <div className="absolute text-[22px] animate-[float_6s_infinite_ease-in-out] top-[20%] left-[10%]">✨</div>
+            <div className="absolute text-[22px] animate-[float_6s_infinite_ease-in-out] top-[70%] left-[80%]">⭐</div>
+            <div className="absolute text-[22px] animate-[float_6s_infinite_ease-in-out] top-[80%] left-[15%]">✨</div>
+            <div className="absolute text-[22px] animate-[float_6s_infinite_ease-in-out] top-[40%] right-[10%]">⭐</div>
+          </>
+        )}
+      </div>
 
       {/* Share Button */}
       {!isElegantPortraitCard && !isYellowHeroCard && !isBrushArtistCard && !isSunsetMotionProfile && (
@@ -307,6 +333,11 @@ export default function ProfileRenderer({ user, links, isPreview = false }: Prof
                 </div>
               ) : isSunsetMotionProfile ? (
                 <span className="relative z-10 text-[#2C2C2C] font-medium">{link.title}</span>
+              ) : themeFlags.isComicBio ? (
+                <>
+                  <span className="relative z-10 text-black">{link.title}</span>
+                  <span className="relative z-10 text-black">{getComicEmoji(link.title)}</span>
+                </>
               ) : (
                 <span className={`relative z-10 ${isEditorialLuxe ? 'group-hover:text-[#F3EFE9] transition-colors duration-300' : ''}`} style={{ opacity: activeTheme.textOpacity || 1 }}>{link.title}</span>
               )}

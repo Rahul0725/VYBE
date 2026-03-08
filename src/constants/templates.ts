@@ -1,6 +1,19 @@
 import { TemplateConfig } from '../types/theme';
 
 export const TEMPLATES: Record<string, TemplateConfig> = {
+  comic_bio: {
+    id: 'comic_bio',
+    name: 'Comic Bio',
+    layout: 'stacked',
+    buttonStyle: 'hard-shadow',
+    fontStyle: 'comic',
+    background: '#ffe9c7',
+    textColor: '#000000',
+    accentColor: '#ffd93d',
+    cardBg: '#ffffff',
+    cardBorder: '4px solid #000000',
+    cardShadow: '10px 10px 0 #000000',
+  },
   sunset_motion_profile: {
     id: 'sunset_motion_profile',
     name: 'Sunset Motion Profile',

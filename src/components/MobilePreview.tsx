@@ -29,7 +29,7 @@ export default function MobilePreview({ user, links }: MobilePreviewProps) {
     backgroundSize: activeTheme.bgSize,
     animation: activeTheme.animation,
     color: activeTheme.textColor,
-    fontFamily: activeTheme.fontStyle === 'mono' ? 'monospace' : activeTheme.fontStyle === 'serif' ? 'serif' : 'sans-serif',
+    fontFamily: activeTheme.fontStyle === 'mono' ? 'monospace' : activeTheme.fontStyle === 'serif' ? 'serif' : activeTheme.fontStyle === 'comic' ? "'Patrick Hand', cursive" : 'sans-serif',
   };
 
   const cardStyle = {
@@ -37,7 +37,19 @@ export default function MobilePreview({ user, links }: MobilePreviewProps) {
     border: activeTheme.cardBorder || 'none',
     boxShadow: activeTheme.cardShadow || 'none',
     color: activeTheme.textColor,
-    borderRadius: activeTheme.buttonStyle === 'pill' ? '9999px' : activeTheme.buttonStyle === 'square' ? '0px' : '12px',
+    borderRadius: templateId === 'comic_bio' ? '18px' : activeTheme.buttonStyle === 'pill' ? '9999px' : activeTheme.buttonStyle === 'square' ? '0px' : '12px',
+  };
+
+  const getComicEmoji = (title: string) => {
+    const t = title.toLowerCase();
+    if (t.includes('web')) return '🚀';
+    if (t.includes('tube')) return '🎥';
+    if (t.includes('insta')) return '📸';
+    if (t.includes('shop')) return '🛒';
+    if (t.includes('project')) return '⭐';
+    if (t.includes('twitter') || t.includes('x')) return '🐦';
+    if (t.includes('music') || t.includes('spotify')) return '🎵';
+    return '✨';
   };
 
   return (
@@ -50,10 +62,19 @@ export default function MobilePreview({ user, links }: MobilePreviewProps) {
         className="w-full h-full overflow-y-auto scrollbar-hide"
         style={containerStyle}
       >
-        <div className="pt-12 pb-8 px-6 flex flex-col items-center min-h-full">
+        {templateId === 'comic_bio' && (
+          <>
+            <div className="absolute text-[16px] animate-[float_6s_infinite_ease-in-out] top-[10%] left-[20%]">⭐</div>
+            <div className="absolute text-[16px] animate-[float_6s_infinite_ease-in-out] top-[20%] left-[10%]">✨</div>
+            <div className="absolute text-[16px] animate-[float_6s_infinite_ease-in-out] top-[70%] left-[80%]">⭐</div>
+            <div className="absolute text-[16px] animate-[float_6s_infinite_ease-in-out] top-[80%] left-[15%]">✨</div>
+            <div className="absolute text-[16px] animate-[float_6s_infinite_ease-in-out] top-[40%] right-[10%]">⭐</div>
+          </>
+        )}
+        <div className={`pt-12 pb-8 px-6 flex flex-col items-center min-h-full ${templateId === 'comic_bio' ? 'bg-white border-[4px] border-black rounded-[25px] m-4 shadow-[5px_5px_0_#000]' : ''}`}>
           {/* Profile Header */}
           <div className="mb-8 text-center w-full">
-            <div className="w-24 h-24 rounded-full overflow-hidden mx-auto mb-4 border-2 border-opacity-20 border-current">
+            <div className={`w-24 h-24 rounded-full overflow-hidden mx-auto mb-4 ${templateId === 'comic_bio' ? 'border-[3px] border-black' : 'border-2 border-opacity-20 border-current'}`}>
               {user?.avatar_url ? (
                 <img src={user.avatar_url} alt={user.username} className="w-full h-full object-cover" />
               ) : (
@@ -62,10 +83,14 @@ export default function MobilePreview({ user, links }: MobilePreviewProps) {
                 </div>
               )}
             </div>
-            <h1 className="text-xl font-bold mb-1 tracking-tight">
+            <h1 className={`text-xl font-bold mb-1 tracking-tight ${templateId === 'comic_bio' ? 'text-2xl' : ''}`}>
               {user?.display_name || `@${user?.username}`}
             </h1>
-            {user?.bio && <p className="text-sm opacity-80 font-medium">{user.bio}</p>}
+            {user?.bio && (
+              <p className={`text-sm opacity-80 font-medium ${templateId === 'comic_bio' ? 'bg-white border-[2px] border-black rounded-[15px] py-1 px-3 my-2 mx-auto inline-block relative after:content-[\'\'] after:absolute after:-bottom-[8px] after:left-[20px] after:w-0 after:h-0 after:border-l-[6px] after:border-l-transparent after:border-r-[6px] after:border-r-transparent after:border-t-[8px] after:border-t-black' : ''}`}>
+                {user.bio}
+              </p>
+            )}
           </div>
 
           {/* Links */}
@@ -73,11 +98,14 @@ export default function MobilePreview({ user, links }: MobilePreviewProps) {
             {links.filter(l => l.is_active).map((link) => (
               <div
                 key={link.id}
-                className="block w-full p-4 text-center transition-transform active:scale-95 hover:scale-[1.02] relative group min-h-[56px] flex items-center justify-center"
+                className={`block w-full p-4 text-center transition-transform active:scale-95 hover:scale-[1.02] relative group min-h-[56px] flex items-center ${templateId === 'comic_bio' ? 'justify-between px-4' : 'justify-center'}`}
                 style={cardStyle}
               >
                 <span className="font-medium relative z-10">{link.title}</span>
-                {activeTheme.buttonStyle === 'hard-shadow' && (
+                {templateId === 'comic_bio' && (
+                  <span className="relative z-10">{getComicEmoji(link.title)}</span>
+                )}
+                {activeTheme.buttonStyle === 'hard-shadow' && templateId !== 'comic_bio' && (
                   <div className="absolute inset-0 border-2 border-current translate-x-1 translate-y-1 -z-10 rounded-none" />
                 )}
               </div>

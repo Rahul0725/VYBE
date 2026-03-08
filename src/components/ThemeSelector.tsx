@@ -10,14 +10,14 @@ interface ThemeSelectorProps {
 
 export default function ThemeSelector({ currentTemplateId, onSelect }: ThemeSelectorProps) {
   return (
-    <div className="max-h-[600px] overflow-y-auto pr-2">
+    <div className="max-h-[400px] overflow-y-auto pr-2">
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         {Object.values(TEMPLATES).map((template) => (
           <button
             key={template.id}
             onClick={() => onSelect(template.id)}
             className={cn(
-              "relative aspect-[9/16] rounded-xl overflow-hidden border-2 transition-all hover:scale-[1.02]",
+              "relative aspect-[3/4] rounded-xl overflow-hidden border-2 transition-all hover:scale-[1.02]",
               currentTemplateId === template.id 
                 ? "border-vybe-accent ring-2 ring-vybe-accent/20" 
                 : "border-transparent hover:border-white/20"

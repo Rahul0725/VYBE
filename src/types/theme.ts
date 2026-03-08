@@ -47,7 +47,8 @@ export type TemplateId =
   | 'ultra_depth_purple'
   | 'elegant_portrait_card'
   | 'yellow_hero_card'
-  | 'brush_artist_card';
+  | 'brush_artist_card'
+  | 'comic_bio';
 
 export interface TemplateSlot {
   id: string;
@@ -61,7 +62,7 @@ export interface TemplateConfig {
   name: string;
   layout: 'stacked' | 'grid' | 'profile-card';
   buttonStyle: 'rounded' | 'square' | 'pill' | 'hard-shadow' | 'circular';
-  fontStyle: 'modern' | 'serif' | 'mono';
+  fontStyle: 'modern' | 'serif' | 'mono' | 'comic';
   background: string; // CSS value (color or gradient)
   textColor: string;
   accentColor: string;
