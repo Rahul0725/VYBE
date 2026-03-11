@@ -205,7 +205,7 @@ export default function DashboardPage() {
       {/* Header */}
       <header className="h-16 border-b border-white/10 bg-vybe-darker/50 backdrop-blur-md flex items-center justify-between px-4 md:px-6 shrink-0 z-50">
         <div className="flex items-center gap-2">
-          <span className="text-xl font-black tracking-tighter">VYBE<span className="text-vybe-accent">.</span></span>
+          <span className="text-xl font-black tracking-tighter">bio link<span className="text-vybe-accent">.</span></span>
           <span className="hidden sm:inline px-2 py-0.5 rounded-full bg-white/10 text-xs font-medium text-white/60">Free Plan</span>
         </div>
 

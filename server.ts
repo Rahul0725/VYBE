@@ -189,7 +189,7 @@ async function startServer() {
                           marginTop: 10,
                           textAlign: 'center',
                         },
-                        children: user.bio || `Check out my links on VYBE`,
+                        children: user.bio || `Check out my links on bio link`,
                       },
                     },
                   ]
@@ -233,7 +233,7 @@ async function startServer() {
                       marginTop: 10,
                       textAlign: 'center',
                     },
-                    children: user.bio || `Check out my links on VYBE`,
+                    children: user.bio || `Check out my links on bio link`,
                   },
                 },
               ],
@@ -248,7 +248,7 @@ async function startServer() {
                     opacity: 0.5,
                     ...textStyle,
                   },
-                  children: 'VYBE',
+                  children: 'bio link',
                 },
               },
             ],
@@ -317,8 +317,8 @@ async function startServer() {
       if (user) {
         console.log(`[Profile] User found: ${username}, injecting metadata`);
         const baseUrl = process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
-        const title = user.seo_title || `${user.display_name || user.username} | VYBE`;
-        const description = user.seo_description || user.bio || `Check out ${user.display_name || user.username}'s links on VYBE.`;
+        const title = user.seo_title || `${user.display_name || user.username} | bio link`;
+        const description = user.seo_description || user.bio || `Check out ${user.display_name || user.username}'s links on bio link.`;
         const image = user.og_image_url || `${baseUrl}/api/og?username=${username}`;
         const url = `${baseUrl}/${username}`;
 
@@ -365,7 +365,7 @@ async function startServer() {
         template = await vite.transformIndexHtml(url, template);
       }
 
-      const title = 'Vybe - Free Open Source Linktree Alternative';
+      const title = 'bio link - Free Open Source Linktree Alternative';
       const description = 'The free, open-source Linktree alternative. Create your bio link page in minutes.';
       const baseUrl = process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
       const image = `${baseUrl}/og-image.png`; // Or a default image URL

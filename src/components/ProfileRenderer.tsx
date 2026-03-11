@@ -65,7 +65,7 @@ export default function ProfileRenderer({ user, links, isPreview = false }: Prof
     const url = window.location.href;
     if (navigator.share) {
       navigator.share({
-        title: `${user.display_name || user.username} on VYBE`,
+        title: `${user.display_name || user.username} on bio link`,
         url,
       }).catch(console.error);
     } else {
@@ -358,7 +358,7 @@ export default function ProfileRenderer({ user, links, isPreview = false }: Prof
         {/* Branding */}
         <div className={`mt-16 text-center ${isElegantPortraitCard ? 'mt-auto pb-8' : ''}`}>
           <a href="/" className="inline-flex items-center gap-2 text-sm font-bold hover:opacity-100 transition-opacity" style={{ opacity: (activeTheme.textOpacity || 1) * 0.5 }}>
-            Powered by VYBE<span className="text-current">.</span>
+            Powered by bio link<span className="text-current">.</span>
           </a>
         </div>
       </motion.div>

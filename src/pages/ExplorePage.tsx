@@ -13,7 +13,7 @@ export default function ExplorePage() {
 
       <nav className="relative z-10 flex items-center justify-between p-6 max-w-7xl mx-auto">
         <Link to="/" className="text-2xl font-black tracking-tighter text-white">
-          VYBE<span className="text-vybe-accent">.</span>
+          bio link<span className="text-vybe-accent">.</span>
         </Link>
         <div className="flex gap-4">
           <Button variant="ghost" asChild>

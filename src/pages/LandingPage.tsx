@@ -59,7 +59,7 @@ export default function LandingPage() {
 
       <nav className="relative z-10 flex items-center justify-between p-6 max-w-7xl mx-auto">
         <div className="text-2xl font-black tracking-tighter text-white">
-          VYBE<span className="text-vybe-accent">.</span>
+          bio link<span className="text-vybe-accent">.</span>
         </div>
         <div className="flex gap-4">
           <Button variant="ghost" asChild>
@@ -110,7 +110,6 @@ export default function LandingPage() {
           className="flex flex-col lg:flex-row items-center gap-8 w-full max-w-4xl justify-center px-4"
         >
           <div className="relative z-0 w-full max-w-[320px] flex justify-center">
-            <div className="landing-grid absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-50"></div>
             <div className="landing-poda">
               <div className="landing-glow"></div>
               <div className="landing-darkBorderBg"></div>

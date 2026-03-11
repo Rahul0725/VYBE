@@ -76,7 +76,7 @@ export default function ThemeSelector({ currentTemplateId, onSelect }: ThemeSele
             </div>
 
             {/* Label */}
-            <div className="absolute bottom-0 inset-x-0 bg-black/50 backdrop-blur-sm p-2 text-center">
+            <div className="absolute bottom-0 inset-x-0 bg-black/50 backdrop-blur-sm p-2 text-center rounded-b-2xl">
               <span className="text-xs font-medium text-white">{template.name}</span>
             </div>
 

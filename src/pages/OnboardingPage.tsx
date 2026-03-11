@@ -327,17 +327,17 @@ export default function OnboardingPage() {
                     <UserCircle className="w-6 h-6 text-vybe-accent" />
                   </div>
                   <h2 className="text-3xl font-bold mb-2">Claim your link</h2>
-                  <p className="text-white/60">Choose a unique username for your VYBE page.</p>
+                  <p className="text-white/60">Choose a unique username for your bio link page.</p>
                 </div>
                 <form onSubmit={handleUsernameSubmit(handleUsernameNext)} className="flex-1 flex flex-col">
                   <div className="space-y-2 flex-1">
                     <Label htmlFor="username">Username</Label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">vybe.bio/</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">biolink.com/</span>
                       <Input 
                         id="username" 
                         placeholder="yourname" 
-                        className={`pl-24 pr-10 ${
+                        className={`pl-28 pr-10 ${
                           usernameErrors.username ? 'border-red-500' : 
                           usernameAvailable === true ? 'border-green-500' : 
                           usernameAvailable === false ? 'border-red-500' : ''
@@ -419,7 +419,7 @@ export default function OnboardingPage() {
                         <div className="w-16 h-2 rounded-full bg-black/10" />
                         <div className="w-16 h-2 rounded-full bg-black/10" />
                       </div>
-                      <div className="absolute bottom-0 left-0 right-0 p-2 bg-black/50 backdrop-blur-sm text-center">
+                      <div className="absolute bottom-0 left-0 right-0 p-2 bg-black/50 backdrop-blur-sm text-center rounded-b-xl">
                         <span className="text-xs font-bold text-white">{template.name}</span>
                       </div>
                     </button>
@@ -574,7 +574,7 @@ export default function OnboardingPage() {
                     <Check className="w-8 h-8 text-green-500" />
                   </div>
                   <h2 className="text-3xl font-bold mb-2">Looking good!</h2>
-                  <p className="text-white/60">Your VYBE page is ready to go.</p>
+                  <p className="text-white/60">Your bio link page is ready to go.</p>
                 </div>
 
                 {/* Preview Card */}

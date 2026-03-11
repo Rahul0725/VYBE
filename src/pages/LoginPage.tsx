@@ -59,7 +59,7 @@ export default function LoginPage() {
       >
         <div className="text-center mb-8">
           <Link to="/" className="text-3xl font-black tracking-tighter inline-block mb-6">
-            VYBE<span className="text-vybe-accent">.</span>
+            bio link<span className="text-vybe-accent">.</span>
           </Link>
           <h1 className="text-2xl font-bold mb-2">
             Welcome back

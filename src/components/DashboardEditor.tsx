@@ -406,7 +406,7 @@ export default function DashboardEditor({ user, links, onUpdateUser, onUpdateLin
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="space-y-1">
                 <Label className="text-base">Username</Label>
-                <p className="text-sm text-zinc-400">Your unique URL: <span className="text-vybe-accent">https://vybe.indevs.in/{user?.username}</span></p>
+                <p className="text-sm text-zinc-400">Your unique URL: <span className="text-vybe-accent">https://biolink.com/{user?.username}</span></p>
               </div>
               <div className="relative">
                 <Input 

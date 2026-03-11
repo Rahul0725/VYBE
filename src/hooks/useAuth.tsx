@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const demoMode = localStorage.getItem('vybe_demo_mode') === 'true';
     if (demoMode) {
       setIsDemo(true);
-      setUser({ id: 'demo-user-id', email: 'demo@vybe.bio' } as User);
+      setUser({ id: 'demo-user-id', email: 'demo@biolink.com' } as User);
       setLoading(false);
       return;
     }
@@ -73,7 +73,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const demoLogin = () => {
     setIsDemo(true);
-    setUser({ id: 'demo-user-id', email: 'demo@vybe.bio' } as User);
+    setUser({ id: 'demo-user-id', email: 'demo@biolink.com' } as User);
     localStorage.setItem('vybe_demo_mode', 'true');
   };
 

@@ -115,7 +115,7 @@ export default function MobilePreview({ user, links }: MobilePreviewProps) {
           {/* Branding */}
           <div className="mt-auto pt-8 pb-4">
             <p className="text-[10px] opacity-50 uppercase tracking-widest font-bold">
-              VYBE<span className="text-current">.</span>
+              bio link<span className="text-current">.</span>
             </p>
           </div>
         </div>
